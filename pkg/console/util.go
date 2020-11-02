@@ -83,11 +83,6 @@ func customizeConfig() {
 	cfg.Config.K3OS.DNSNameservers = []string{"8.8.8.8"}
 	cfg.Config.K3OS.NTPServers = []string{"ntp.ubuntu.com"}
 	cfg.Config.K3OS.Modules = []string{"kvm"}
-	cfg.Config.Bootcmd = []string{
-		"mkdir -p /opt/cni/bin",
-		"cp /var/lib/cni/bin/* /opt/cni/bin",
-		//"for i in bridge flannel host-local loopback portmap;do ln -fs /var/lib/rancher/k3s/data/*/bin/cni /opt/cni/bin/$i;done",
-	}
 
 	if installMode == modeJoin && nodeRole == nodeRoleCompute {
 		return
