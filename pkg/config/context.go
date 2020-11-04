@@ -5,6 +5,7 @@ import (
 
 	dashboardapi "github.com/kubernetes/dashboard/src/app/backend/auth/api"
 	"github.com/rancher/lasso/pkg/controller"
+	appsv1 "github.com/rancher/wrangler-api/pkg/generated/controllers/apps"
 	corev1 "github.com/rancher/wrangler-api/pkg/generated/controllers/core"
 	rbacv1 "github.com/rancher/wrangler-api/pkg/generated/controllers/rbac"
 	storagev1 "github.com/rancher/wrangler-api/pkg/generated/controllers/storage"
@@ -43,6 +44,7 @@ type Scaled struct {
 	CDIFactory       *cdi.Factory
 	HarvesterFactory *harvester.Factory
 	CoreFactory      *corev1.Factory
+	AppsFactory      *appsv1.Factory
 	RbacFactory      *rbacv1.Factory
 	starters         []start.Starter
 
@@ -58,6 +60,7 @@ type Management struct {
 	CDIFactory       *cdi.Factory
 	HarvesterFactory *harvester.Factory
 	CoreFactory      *corev1.Factory
+	AppsFactory      *appsv1.Factory
 	RbacFactory      *rbacv1.Factory
 	StorageFactory   *storagev1.Factory
 
@@ -95,6 +98,13 @@ func SetupScaled(ctx context.Context, restConfig *rest.Config, opts *generic.Fac
 	}
 	scaled.CoreFactory = core
 	scaled.starters = append(scaled.starters, core)
+
+	apps, err := appsv1.NewFactoryFromConfigWithOptions(restConfig, opts)
+	if err != nil {
+		return nil, nil, err
+	}
+	scaled.AppsFactory = apps
+	scaled.starters = append(scaled.starters, apps)
 
 	rbac, err := rbacv1.NewFactoryFromConfigWithOptions(restConfig, opts)
 	if err != nil {
@@ -147,6 +157,13 @@ func setupManagement(ctx context.Context, restConfig *rest.Config, opts *generic
 	}
 	management.CoreFactory = core
 	management.starters = append(management.starters, core)
+
+	apps, err := appsv1.NewFactoryFromConfigWithOptions(restConfig, opts)
+	if err != nil {
+		return nil, err
+	}
+	management.AppsFactory = apps
+	management.starters = append(management.starters, apps)
 
 	rbac, err := rbacv1.NewFactoryFromConfigWithOptions(restConfig, opts)
 	if err != nil {
