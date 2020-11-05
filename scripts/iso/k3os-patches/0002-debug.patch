@@ -1,7 +1,7 @@
 From 1d2b265d3beb274cee758f1c391cab226fcef238 Mon Sep 17 00:00:00 2001
 From: gitlawr <lawrleegle@gmail.com>
 Date: Thu, 5 Nov 2020 16:11:24 +0800
-Subject: [PATCH 2/2] debug
+Subject: [PATCH 2/3] debug
 
 ---
  install.sh | 2 +-
