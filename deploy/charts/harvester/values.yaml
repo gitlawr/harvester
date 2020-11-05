@@ -101,6 +101,18 @@ minio:
   ##
   secretKey: YOURSECRETKEY
 
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - minio
+          topologyKey: kubernetes.io/hostname
   ## Specify the persistence of Minio.
   ##
   persistence:
