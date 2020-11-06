@@ -1,22 +1,31 @@
-From 8160bc688752287099ed781b4d70690d14babce9 Mon Sep 17 00:00:00 2001
+From af5b353a34cc39fe44971da02f1fd16cb852fbbb Mon Sep 17 00:00:00 2001
 From: gitlawr <lawrleegle@gmail.com>
 Date: Fri, 6 Nov 2020 16:46:37 +0800
 Subject: [PATCH 2/2] load image
 
 ---
- install.sh | 40 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+ install.sh | 42 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
 diff --git a/install.sh b/install.sh
-index 0bc2376..8d1ebc2 100755
+index 0bc2376..1146a5a 100755
 --- a/install.sh
 +++ b/install.sh
-@@ -163,6 +163,46 @@ do_copy()
+@@ -40,6 +40,7 @@ cleanup2()
+ 
+     losetup -d ${ISO_DEVICE} || losetup -d ${ISO_DEVICE%?} || true
+     umount $DISTRO || true
++    sleep 10
+ }
+ 
+ cleanup()
+@@ -163,6 +164,47 @@ do_copy()
          echo "Decompressing container images"
          zstd -d --rm "${root_path}/${offline_image_path}.zst" -o "${root_path}/${offline_image_path}" > /dev/null
      fi
 +    echo "Loading images"
-+    cd /run/k3os/target/k3os/data
++    sleep 5
++    cd ${root_path}
 +    mkdir lib bin sbin k3os dev proc etc sys
 +    mount --bind /bin bin
 +    mount --bind /sbin sbin
