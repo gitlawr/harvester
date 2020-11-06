@@ -25,3 +25,11 @@ func TestFoo(t *testing.T) {
 	}
 	t.Log(temp)
 }
+
+func TestGetSshKey(t *testing.T) {
+	keys, err := getSSHKeysFromURL("https://github.com/gitlawr.keys")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(keys)
+}

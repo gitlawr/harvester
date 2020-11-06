@@ -54,6 +54,7 @@ func setPanels(c *Console) error {
 		addNodeRolePanel,
 		addServerURLPanel,
 		addOsPasswordPanels,
+		addSSHKeyPanel,
 		addTokenPanel,
 		addProxyPanel,
 		addCloudInitPanel,
@@ -266,10 +267,6 @@ func addOsPasswordPanels(c *Console) error {
 			if err != nil {
 				return err
 			}
-			validatorV, err := c.GetElement(validatorPanel)
-			if err != nil {
-				return err
-			}
 			password1, err := password1V.GetData()
 			if err != nil {
 				return err
@@ -279,10 +276,8 @@ func addOsPasswordPanels(c *Console) error {
 				return err
 			}
 			if password1 != password2 {
-				validatorV.SetContent("password mismatching")
-				return nil
+				return setValidator(c, "password mismatching")
 			}
-			validatorV.Close()
 			password1V.Close()
 			osPasswordConfirmV.Close()
 			encrpyted, err := getEncrptedPasswd(password1)
@@ -290,15 +285,46 @@ func addOsPasswordPanels(c *Console) error {
 				return err
 			}
 			cfg.Config.K3OS.Password = encrpyted
+
+			setNote(c, sshKeyNote)
+			return showNext(c, "Optional: import SSH keys", sshKeyPanel, notePanel)
+		},
+	}
+	osPasswordConfirmV.SetLocation(maxX/4, maxY/4+3, maxX/4*3, maxY/4+5)
+	c.AddElement(osPasswordConfirmPanel, osPasswordConfirmV)
+
+	return nil
+}
+
+func addSSHKeyPanel(c *Console) error {
+	maxX, maxY := c.Gui.Size()
+	sshKeyV, err := widgets.NewInput(c.Gui, sshKeyPanel, "HTTP URL", false)
+	if err != nil {
+		return err
+	}
+	sshKeyV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
+		gocui.KeyEnter: func(g *gocui.Gui, v *gocui.View) error {
+			url, err := sshKeyV.GetData()
+			if err != nil {
+				return err
+			}
+			if url != "" {
+				keys, err := getSSHKeysFromURL(url)
+				if err != nil {
+					setValidator(c, err.Error())
+					return nil
+				}
+				cfg.Config.SSHAuthorizedKeys = keys
+			}
+			sshKeyV.Close()
 			if installMode == modeCreate {
 				return showNext(c, "Configure cluster token", tokenPanel)
 			}
 			return showNext(c, "Configure exisiting server URL", serverURLPanel)
 		},
 	}
-	osPasswordConfirmV.SetLocation(maxX/4, maxY/4+3, maxX/4*3, maxY/4+5)
-	c.AddElement(osPasswordConfirmPanel, osPasswordConfirmV)
-
+	sshKeyV.SetLocation(maxX/4, maxY/4, maxX/4*3, maxY/4+3)
+	c.AddElement(sshKeyPanel, sshKeyV)
 	return nil
 }
 
@@ -316,7 +342,6 @@ func addTokenPanel(c *Console) error {
 			cfg.Config.K3OS.Token = token
 			tokenV.Close()
 			setNote(c, proxyNote)
-			g.SetViewOnTop(notePanel)
 			return showNext(c, "Optional: configure proxy", proxyPanel, notePanel)
 		},
 	}

@@ -11,6 +11,7 @@ const (
 	osPasswordConfirmPanel    = "osPasswordConfirm"
 	adminPasswordPanel        = "adminPassword"
 	adminPasswordConfirmPanel = "adminPasswordConfirm"
+	sshKeyPanel               = "sshKey"
 	tokenPanel                = "token"
 	proxyPanel                = "proxy"
 	cloudInitPanel            = "cloudInit"
@@ -24,5 +25,6 @@ const (
 	nodeRoleCompute    = "compute"
 	nodeRoleManagement = "management"
 
-	proxyNote = "Note: In the form of \"http://[[user][:pass]@]host[:port]/\"."
+	proxyNote  = "Note: In the form of \"http://[[user][:pass]@]host[:port]/\"."
+	sshKeyNote = "For example: https://github.com/<username>.keys"
 )

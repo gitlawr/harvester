@@ -5,9 +5,11 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	cfg "github.com/rancher/harvester/pkg/console/config"
 	"github.com/rancher/k3os/pkg/config"
@@ -49,6 +51,25 @@ func getEncrptedPasswd(pass string) (string, error) {
 	return "", scanner.Err()
 }
 
+func getSSHKeysFromURL(url string) ([]string, error) {
+	client := http.Client{
+		Timeout: 15 * time.Second,
+	}
+	resp, err := client.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	body := strings.TrimSuffix(string(b), "\n")
+	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("got unexpected status code: %d, body: %s", resp.StatusCode, body)
+	}
+	return strings.Split(body, "\n"), nil
+}
+
 func showNext(c *Console, title string, names ...string) error {
 	if title != "" {
 		titleV, err := c.GetElement(titlePanel)
@@ -57,6 +78,9 @@ func showNext(c *Console, title string, names ...string) error {
 		}
 		titleV.SetContent(title)
 	}
+
+	showNoteV := false
+
 	for _, name := range names {
 		v, err := c.GetElement(name)
 		if err != nil {
@@ -65,17 +89,48 @@ func showNext(c *Console, title string, names ...string) error {
 		if err := v.Show(); err != nil {
 			return err
 		}
+		if name == notePanel {
+			showNoteV = true
+		}
+	}
+
+	validatorV, err := c.GetElement(validatorPanel)
+	if err != nil {
+		return err
+	}
+	validatorV.Close()
+	if !showNoteV {
+		noteV, err := c.GetElement(notePanel)
+		if err != nil {
+			return err
+		}
+		noteV.Close()
 	}
 	return nil
 }
 
-func setNote(c *Console, note string) error {
+func setNote(c *Console, msg string) error {
 	noteV, err := c.GetElement(notePanel)
 	if err != nil {
 		return err
 	}
-	noteV.SetContent(note)
+	noteV.SetContent(msg)
+	if _, err := c.Gui.SetViewOnTop(notePanel); err != nil {
+		return err
+	}
 	return noteV.Show()
+}
+
+func setValidator(c *Console, msg string) error {
+	validatorV, err := c.GetElement(validatorPanel)
+	if err != nil {
+		return err
+	}
+	validatorV.SetContent(msg)
+	if _, err := c.Gui.SetViewOnTop(validatorPanel); err != nil {
+		return err
+	}
+	return validatorV.Show()
 }
 
 func customizeConfig() {
