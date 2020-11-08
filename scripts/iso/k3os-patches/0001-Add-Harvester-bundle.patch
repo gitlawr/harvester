@@ -1,4 +1,4 @@
-From 3f779ec958540c718a1163835b3b34689ce9971e Mon Sep 17 00:00:00 2001
+From 3de17d97ed8b1aeca3cc2042c7e85f0d591f2b6d Mon Sep 17 00:00:00 2001
 From: gitlawr <lawrleegle@gmail.com>
 Date: Mon, 2 Nov 2020 10:30:49 +0800
 Subject: [PATCH] Add Harvester bundle
@@ -133,7 +133,7 @@ index 317b0e5..ff28f92 100644
 -COPY --from=tar /output/userspace.tar /output/k3os-rootfs-${ARCH}.tar
 -RUN gzip /output/k3os-rootfs-${ARCH}.tar
 diff --git a/install.sh b/install.sh
-index 2d931ba..a43d563 100755
+index 2d931ba..4d7ba78 100755
 --- a/install.sh
 +++ b/install.sh
 @@ -81,11 +81,11 @@ do_format()
@@ -141,12 +141,12 @@ index 2d931ba..a43d563 100755
          STATE_NUM=2
          parted -s ${DEVICE} mkpart primary fat32 0% 50MB
 -        parted -s ${DEVICE} mkpart primary ext4 50MB 750MB
-+        parted -s ${DEVICE} mkpart primary ext4 50MB 6144MB
++        parted -s ${DEVICE} mkpart primary ext4 50MB 20480MB
      else
          BOOT_NUM=
          STATE_NUM=1
 -        parted -s ${DEVICE} mkpart primary ext4 0% 700MB
-+        parted -s ${DEVICE} mkpart primary ext4 0% 6094MB
++        parted -s ${DEVICE} mkpart primary ext4 0% 20430MB
      fi
      parted -s ${DEVICE} set 1 ${BOOTFLAG} on
      partprobe ${DEVICE} 2>/dev/null || true
@@ -197,7 +197,7 @@ index 2d931ba..a43d563 100755
 +      sleep 1
 +    done
 +    # import images
-+    ctr images import /var/lib/rancher/k3s/agent/images/harvester*
++    ctr -n k8s.io images import /var/lib/rancher/k3s/agent/images/harvester*
 +    rm /var/lib/rancher/k3s/agent/images/harvester*
 +    # stop containerd
 +    pkill containerd
