@@ -11,11 +11,16 @@ type Input struct {
 }
 
 func NewInput(g *gocui.Gui, name string, label string, mask bool) (*Input, error) {
+	maxX, maxY := g.Size()
 	return &Input{
 		Panel: &Panel{
 			Name:    name,
 			g:       g,
 			Content: label,
+			X0:      maxX / 4,
+			Y0:      maxY / 4,
+			X1:      maxX / 4 * 3,
+			Y1:      maxY/4 + 3,
 		},
 		Mask: mask,
 	}, nil
@@ -60,20 +65,18 @@ func (i *Input) Show() error {
 }
 
 func (i *Input) Close() error {
-	v, err := i.g.View(i.Name)
-	if err != nil {
-		return err
-	}
 	inputViewName := i.Name + "-input"
-	ov, err := i.g.View(inputViewName)
-	if err != nil {
+	// ov, err := i.g.View(inputViewName)
+	// if err != nil {
+	// 	return err
+	// }
+	// ov.Frame = false
+	// ov.Clear()
+	i.g.DeleteKeybindings(inputViewName)
+	if err := i.g.DeleteView(inputViewName); err != nil {
 		return err
 	}
-	ov.Frame = false
-	v.Frame = false
-	ov.Clear()
-	v.Clear()
-	return nil
+	return i.Panel.Close()
 }
 
 func (i *Input) GetData() (string, error) {

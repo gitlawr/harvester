@@ -28,6 +28,7 @@ func (c *Console) layoutInstall(g *gocui.Gui) error {
 			titlePanel,
 			validatorPanel,
 			notePanel,
+			footerPanel,
 			askCreatePanel,
 		}
 		var e widgets.Element
@@ -46,14 +47,15 @@ func (c *Console) layoutInstall(g *gocui.Gui) error {
 
 func setPanels(c *Console) error {
 	funcs := []func(*Console) error{
-		addTitleP,
+		addTitlePanel,
 		addValidatorPanel,
 		addNotePanel,
+		addFooterPanel,
 		addDiskPanel,
 		addAskCreatePanel,
 		addNodeRolePanel,
 		addServerURLPanel,
-		addOsPasswordPanels,
+		addPasswordPanels,
 		addSSHKeyPanel,
 		addTokenPanel,
 		addProxyPanel,
@@ -69,11 +71,11 @@ func setPanels(c *Console) error {
 	return nil
 }
 
-func addTitleP(c *Console) error {
+func addTitlePanel(c *Console) error {
 	maxX, maxY := c.Gui.Size()
 	titleV := widgets.NewPanel(c.Gui, titlePanel)
 	titleV.SetLocation(maxX/4, maxY/4-3, maxX/4*3, maxY/4)
-	titleV.Content = "Choose installation mode"
+	titleV.Focus = false
 	c.AddElement(titlePanel, titleV)
 	return nil
 }
@@ -81,8 +83,9 @@ func addTitleP(c *Console) error {
 func addValidatorPanel(c *Console) error {
 	maxX, maxY := c.Gui.Size()
 	validatorV := widgets.NewPanel(c.Gui, validatorPanel)
-	validatorV.SetLocation(maxX/4, maxY/4*3, maxX/4*3, maxY/4*3+2)
+	validatorV.SetLocation(maxX/4, maxY/4+5, maxX/4*3, maxY/4+7)
 	validatorV.FgColor = gocui.ColorRed
+	validatorV.Focus = false
 	c.AddElement(validatorPanel, validatorV)
 	return nil
 }
@@ -90,9 +93,19 @@ func addValidatorPanel(c *Console) error {
 func addNotePanel(c *Console) error {
 	maxX, maxY := c.Gui.Size()
 	noteV := widgets.NewPanel(c.Gui, notePanel)
-	noteV.SetLocation(maxX/4, maxY/4+3, maxX, maxY/4+10)
+	noteV.SetLocation(maxX/4, maxY/4+3, maxX, maxY/4+5)
 	noteV.Wrap = true
+	noteV.Focus = false
 	c.AddElement(notePanel, noteV)
+	return nil
+}
+
+func addFooterPanel(c *Console) error {
+	maxX, maxY := c.Gui.Size()
+	footerV := widgets.NewPanel(c.Gui, footerPanel)
+	footerV.SetLocation(0, maxY-2, maxX, maxY)
+	footerV.Focus = false
+	c.AddElement(footerPanel, footerV)
 	return nil
 }
 
@@ -111,9 +124,21 @@ func addDiskPanel(c *Console) error {
 				Device: device,
 			}
 			diskV.Close()
-			g.Cursor = true
-			return showNext(c, "Configure the password to access the node(user rancher)", osPasswordConfirmPanel, osPasswordPanel)
+			if installMode == modeCreate {
+				return showNext(c, tokenPanel)
+			}
+			return showNext(c, serverURLPanel)
 		},
+		gocui.KeyEsc: func(g *gocui.Gui, v *gocui.View) error {
+			diskV.Close()
+			if installMode == modeCreate {
+				return showNext(c, askCreatePanel)
+			}
+			return showNext(c, nodeRolePanel)
+		},
+	}
+	diskV.PreShow = func() error {
+		return c.setContentByName(titlePanel, "Choose installation target. Device will be formatted")
 	}
 	c.AddElement(diskPanel, diskV)
 	return nil
@@ -156,29 +181,30 @@ func addAskCreatePanel(c *Console) error {
 	if err != nil {
 		return err
 	}
+	askCreateV.PreShow = func() error {
+		if err := c.setContentByName(footerPanel, ""); err != nil {
+			return err
+		}
+		return c.setContentByName(titlePanel, "Choose installation mode")
+	}
+	askCreateV.PostClose = func() error {
+		return c.setContentByName(footerPanel, "<Use ESC to go back to previous section>")
+	}
 	askCreateV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
 		gocui.KeyEnter: func(g *gocui.Gui, v *gocui.View) error {
+			log.Debug(g, "hit ask create enter")
 			selected, err := askCreateV.GetData()
 			if err != nil {
 				return err
 			}
+			askCreateV.Close()
 			if selected == modeCreate {
 				installMode = modeCreate
-				// if err := showNext(c, "Set Harvester admin password", osPasswordConfirmPanel, osPasswordPanel); err != nil {
-				// 	return err
-				// }
-				if err := showNext(c, "Choose installation target. Device will be formatted", diskPanel); err != nil {
-					return err
-				}
-			} else {
-				// joining an existing cluster
-				installMode = modeJoin
-				if err := showNext(c, "Choose role for the node", nodeRolePanel); err != nil {
-					return err
-				}
+				return showNext(c, diskPanel)
 			}
-			askCreateV.Close()
-			return nil
+			// joining an existing cluster
+			installMode = modeJoin
+			return showNext(c, nodeRolePanel)
 		},
 	}
 	c.AddElement(askCreatePanel, askCreateV)
@@ -202,6 +228,9 @@ func addNodeRolePanel(c *Console) error {
 	if err != nil {
 		return err
 	}
+	nodeRoleV.PreShow = func() error {
+		return c.setContentByName(titlePanel, "Choose role for the node")
+	}
 	nodeRoleV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
 		gocui.KeyEnter: func(g *gocui.Gui, v *gocui.View) error {
 			selected, err := nodeRoleV.GetData()
@@ -210,7 +239,16 @@ func addNodeRolePanel(c *Console) error {
 			}
 			nodeRole = selected
 			nodeRoleV.Close()
-			return showNext(c, "Choose installation target. Device will be formatted", diskPanel)
+			return showNext(c, diskPanel)
+		},
+		gocui.KeyEsc: func(g *gocui.Gui, v *gocui.View) error {
+			nodeRoleV.Close()
+			footerV, err := c.GetElement(footerPanel)
+			if err != nil {
+				return err
+			}
+			footerV.Close()
+			return showNext(c, askCreatePanel)
 		},
 	}
 	c.AddElement(nodeRolePanel, nodeRoleV)
@@ -218,9 +256,16 @@ func addNodeRolePanel(c *Console) error {
 }
 
 func addServerURLPanel(c *Console) error {
-	serverURLV, err := widgets.NewInput(c.Gui, serverURLPanel, "server URL", false)
+	serverURLV, err := widgets.NewInput(c.Gui, serverURLPanel, "Management address", false)
 	if err != nil {
 		return err
+	}
+	serverURLV.PreShow = func() error {
+		c.Gui.Cursor = true
+		if err := c.setContentByName(titlePanel, "Configure management address"); err != nil {
+			return err
+		}
+		return c.setContentByName(notePanel, serverURLNote)
 	}
 	serverURLV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
 		gocui.KeyEnter: func(g *gocui.Gui, v *gocui.View) error {
@@ -228,42 +273,63 @@ func addServerURLPanel(c *Console) error {
 			if err != nil {
 				return err
 			}
+			if serverURL == "" {
+				return c.setContentByName(validatorPanel, "Management address is required")
+			}
 			serverURLV.Close()
-			cfg.Config.K3OS.ServerURL = serverURL
-			return showNext(c, "Configure cluster token", tokenPanel)
+			cfg.Config.K3OS.ServerURL = getFormattedServerURL(serverURL)
+			return showNext(c, tokenPanel)
+		},
+		gocui.KeyEsc: func(g *gocui.Gui, v *gocui.View) error {
+			g.Cursor = false
+			serverURLV.Close()
+			return showNext(c, diskPanel)
 		},
 	}
 	c.AddElement(serverURLPanel, serverURLV)
 	return nil
 }
 
-func addOsPasswordPanels(c *Console) error {
+func addPasswordPanels(c *Console) error {
 	maxX, maxY := c.Gui.Size()
-	osPasswordV, err := widgets.NewInput(c.Gui, osPasswordPanel, "Password", true)
+	passwordV, err := widgets.NewInput(c.Gui, passwordPanel, "Password", true)
 	if err != nil {
 		return err
 	}
-	osPasswordV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
+	passwordConfirmV, err := widgets.NewInput(c.Gui, passwordConfirmPanel, "Confirm password", true)
+	if err != nil {
+		return err
+	}
+
+	passwordV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
 		gocui.KeyEnter: func(g *gocui.Gui, v *gocui.View) error {
-			return showNext(c, "", osPasswordConfirmPanel)
+			return showNext(c, passwordConfirmPanel)
 		},
 		gocui.KeyArrowDown: func(g *gocui.Gui, v *gocui.View) error {
-			return showNext(c, "", osPasswordConfirmPanel)
+			return showNext(c, passwordConfirmPanel)
+		},
+		gocui.KeyEsc: func(g *gocui.Gui, v *gocui.View) error {
+			passwordV.Close()
+			passwordConfirmV.Close()
+			if err := c.setContentByName(notePanel, ""); err != nil {
+				return err
+			}
+			return showNext(c, tokenPanel)
 		},
 	}
-	osPasswordV.SetLocation(maxX/4, maxY/4, maxX/4*3, maxY/4+2)
-	c.AddElement(osPasswordPanel, osPasswordV)
+	passwordV.SetLocation(maxX/4, maxY/4, maxX/4*3, maxY/4+2)
+	c.AddElement(passwordPanel, passwordV)
 
-	osPasswordConfirmV, err := widgets.NewInput(c.Gui, osPasswordConfirmPanel, "Confirm password", true)
-	if err != nil {
-		return err
+	passwordConfirmV.PreShow = func() error {
+		c.Gui.Cursor = true
+		return c.setContentByName(titlePanel, "Configure the password to access the node (user rancher)")
 	}
-	osPasswordConfirmV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
+	passwordConfirmV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
 		gocui.KeyArrowUp: func(g *gocui.Gui, v *gocui.View) error {
-			return showNext(c, "", osPasswordPanel)
+			return showNext(c, passwordPanel)
 		},
 		gocui.KeyEnter: func(g *gocui.Gui, v *gocui.View) error {
-			password1V, err := c.GetElement(osPasswordPanel)
+			password1V, err := c.GetElement(passwordPanel)
 			if err != nil {
 				return err
 			}
@@ -271,36 +337,50 @@ func addOsPasswordPanels(c *Console) error {
 			if err != nil {
 				return err
 			}
-			password2, err := osPasswordConfirmV.GetData()
+			password2, err := passwordConfirmV.GetData()
 			if err != nil {
 				return err
 			}
 			if password1 != password2 {
-				return setValidator(c, "password mismatching")
+				return c.setContentByName(validatorPanel, "Password mismatching")
+			}
+			if password1 == "" {
+				return c.setContentByName(validatorPanel, "Password is required")
 			}
 			password1V.Close()
-			osPasswordConfirmV.Close()
+			passwordConfirmV.Close()
 			encrpyted, err := getEncrptedPasswd(password1)
 			if err != nil {
 				return err
 			}
 			cfg.Config.K3OS.Password = encrpyted
-
-			setNote(c, sshKeyNote)
-			return showNext(c, "Optional: import SSH keys", sshKeyPanel, notePanel)
+			return showNext(c, sshKeyPanel)
+		},
+		gocui.KeyEsc: func(g *gocui.Gui, v *gocui.View) error {
+			passwordV.Close()
+			passwordConfirmV.Close()
+			if err := c.setContentByName(notePanel, ""); err != nil {
+				return err
+			}
+			return showNext(c, tokenPanel)
 		},
 	}
-	osPasswordConfirmV.SetLocation(maxX/4, maxY/4+3, maxX/4*3, maxY/4+5)
-	c.AddElement(osPasswordConfirmPanel, osPasswordConfirmV)
+	passwordConfirmV.SetLocation(maxX/4, maxY/4+3, maxX/4*3, maxY/4+5)
+	c.AddElement(passwordConfirmPanel, passwordConfirmV)
 
 	return nil
 }
 
 func addSSHKeyPanel(c *Console) error {
-	maxX, maxY := c.Gui.Size()
 	sshKeyV, err := widgets.NewInput(c.Gui, sshKeyPanel, "HTTP URL", false)
 	if err != nil {
 		return err
+	}
+	sshKeyV.PreShow = func() error {
+		if err := c.setContentByName(titlePanel, "Optional: import SSH keys"); err != nil {
+			return err
+		}
+		return c.setContentByName(notePanel, "For example: https://github.com/<username>.keys")
 	}
 	sshKeyV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
 		gocui.KeyEnter: func(g *gocui.Gui, v *gocui.View) error {
@@ -309,21 +389,22 @@ func addSSHKeyPanel(c *Console) error {
 				return err
 			}
 			if url != "" {
+				//TODO async
 				keys, err := getSSHKeysFromURL(url)
 				if err != nil {
-					setValidator(c, err.Error())
+					c.setContentByName(validatorPanel, err.Error())
 					return nil
 				}
 				cfg.Config.SSHAuthorizedKeys = keys
 			}
 			sshKeyV.Close()
-			if installMode == modeCreate {
-				return showNext(c, "Configure cluster token", tokenPanel)
-			}
-			return showNext(c, "Configure exisiting server URL", serverURLPanel)
+			return showNext(c, proxyPanel)
+		},
+		gocui.KeyEsc: func(g *gocui.Gui, v *gocui.View) error {
+			sshKeyV.Close()
+			return showNext(c, passwordConfirmPanel, passwordPanel)
 		},
 	}
-	sshKeyV.SetLocation(maxX/4, maxY/4, maxX/4*3, maxY/4+3)
 	c.AddElement(sshKeyPanel, sshKeyV)
 	return nil
 }
@@ -333,16 +414,35 @@ func addTokenPanel(c *Console) error {
 	if err != nil {
 		return err
 	}
+	tokenV.PreShow = func() error {
+		c.Gui.Cursor = true
+		if installMode == modeCreate {
+			if err := c.setContentByName(notePanel, clusterTokenNote); err != nil {
+				return err
+			}
+		}
+		return c.setContentByName(titlePanel, "Configure cluster token")
+	}
 	tokenV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
 		gocui.KeyEnter: func(g *gocui.Gui, v *gocui.View) error {
 			token, err := tokenV.GetData()
 			if err != nil {
 				return err
 			}
+			if token == "" {
+				return c.setContentByName(validatorPanel, "Cluster token is required")
+			}
 			cfg.Config.K3OS.Token = token
 			tokenV.Close()
-			setNote(c, proxyNote)
-			return showNext(c, "Optional: configure proxy", proxyPanel, notePanel)
+			return showNext(c, passwordConfirmPanel, passwordPanel)
+		},
+		gocui.KeyEsc: func(g *gocui.Gui, v *gocui.View) error {
+			tokenV.Close()
+			if installMode == modeCreate {
+				g.Cursor = false
+				return showNext(c, diskPanel)
+			}
+			return showNext(c, serverURLPanel)
 		},
 	}
 	c.AddElement(tokenPanel, tokenV)
@@ -350,18 +450,19 @@ func addTokenPanel(c *Console) error {
 }
 
 func addProxyPanel(c *Console) error {
-	maxX, maxY := c.Gui.Size()
 	proxyV, err := widgets.NewInput(c.Gui, proxyPanel, "Proxy address", false)
 	if err != nil {
 		return err
 	}
+	proxyV.PreShow = func() error {
+		if err := c.setContentByName(titlePanel, "Optional: configure proxy"); err != nil {
+			return err
+		}
+		return c.setContentByName(notePanel, proxyNote)
+	}
 	proxyV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
 		gocui.KeyEnter: func(g *gocui.Gui, v *gocui.View) error {
 			proxy, err := proxyV.GetData()
-			if err != nil {
-				return err
-			}
-			noteV, err := c.GetElement(notePanel)
 			if err != nil {
 				return err
 			}
@@ -373,78 +474,29 @@ func addProxyPanel(c *Console) error {
 				cfg.Config.K3OS.Environment["https_proxy"] = proxy
 			}
 			proxyV.Close()
+			noteV, err := c.GetElement(notePanel)
+			if err != nil {
+				return err
+			}
 			noteV.Close()
-			return showNext(c, "Optional: configure cloud-init", cloudInitPanel)
+			return showNext(c, cloudInitPanel)
+		},
+		gocui.KeyEsc: func(g *gocui.Gui, v *gocui.View) error {
+			proxyV.Close()
+			return showNext(c, sshKeyPanel)
 		},
 	}
-
-	proxyV.SetLocation(maxX/4, maxY/4, maxX/4*3, maxY/4+3)
 	c.AddElement(proxyPanel, proxyV)
 	return nil
 }
 
-func addAdminPasswordPanels(c *Console) error {
-	maxX, maxY := c.Gui.Size()
-	adminPasswordV, err := widgets.NewInput(c.Gui, adminPasswordPanel, "Password", true)
-	if err != nil {
-		return err
-	}
-	adminPasswordV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
-		gocui.KeyEnter: func(g *gocui.Gui, v *gocui.View) error {
-			return showNext(c, "", adminPasswordConfirmPanel)
-		},
-		gocui.KeyArrowDown: func(g *gocui.Gui, v *gocui.View) error {
-			return showNext(c, "", adminPasswordConfirmPanel)
-		},
-	}
-	adminPasswordV.SetLocation(maxX/4, maxY/4, maxX/4*3, maxY/4+2)
-	c.AddElement(adminPasswordPanel, adminPasswordV)
-
-	adminPasswordConfirmV, err := widgets.NewInput(c.Gui, adminPasswordConfirmPanel, "Confirm password", true)
-	if err != nil {
-		return err
-	}
-	adminPasswordConfirmV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
-		gocui.KeyArrowUp: func(g *gocui.Gui, v *gocui.View) error {
-			return showNext(c, "", adminPasswordPanel)
-		},
-		gocui.KeyEnter: func(g *gocui.Gui, v *gocui.View) error {
-			password1V, err := c.GetElement(adminPasswordPanel)
-			if err != nil {
-				return err
-			}
-			validatorV, err := c.GetElement(validatorPanel)
-			if err != nil {
-				return err
-			}
-			password1, err := password1V.GetData()
-			if err != nil {
-				return err
-			}
-			password2, err := adminPasswordConfirmV.GetData()
-			if err != nil {
-				return err
-			}
-			if password1 != password2 {
-				validatorV.SetContent("password mismatching")
-				return nil
-			}
-			validatorV.Close()
-			password1V.Close()
-			adminPasswordConfirmV.Close()
-			return showNext(c, "Configure cluster token", tokenPanel)
-		},
-	}
-	adminPasswordConfirmV.SetLocation(maxX/4, maxY/4+3, maxX/4*3, maxY/4+5)
-	c.AddElement(adminPasswordConfirmPanel, adminPasswordConfirmV)
-
-	return nil
-}
-
 func addCloudInitPanel(c *Console) error {
-	cloudInitV, err := widgets.NewInput(c.Gui, cloudInitPanel, "File location(http URL)", false)
+	cloudInitV, err := widgets.NewInput(c.Gui, cloudInitPanel, "HTTP URL", false)
 	if err != nil {
 		return err
+	}
+	cloudInitV.PreShow = func() error {
+		return c.setContentByName(titlePanel, "Optional: configure cloud-init")
 	}
 	cloudInitV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
 		gocui.KeyEnter: func(g *gocui.Gui, v *gocui.View) error {
@@ -476,7 +528,11 @@ func addCloudInitPanel(c *Console) error {
 					"\nYour disk will be formatted and Harvester will be installed with \nthe above configuration. Continue?\n")
 			}
 			g.Cursor = false
-			return showNext(c, "Confirm installation options", confirmPanel)
+			return showNext(c, confirmPanel)
+		},
+		gocui.KeyEsc: func(g *gocui.Gui, v *gocui.View) error {
+			cloudInitV.Close()
+			return showNext(c, proxyPanel)
 		},
 	}
 	c.AddElement(cloudInitPanel, cloudInitV)
@@ -490,7 +546,7 @@ func addConfirmPanel(c *Console) error {
 				Value: "yes",
 				Text:  "Yes",
 			}, {
-				Value: "No",
+				Value: "no",
 				Text:  "No",
 			},
 		}, nil
@@ -500,18 +556,28 @@ func addConfirmPanel(c *Console) error {
 	if err != nil {
 		return err
 	}
+	confirmV.PreShow = func() error {
+		return c.setContentByName(titlePanel, "Confirm installation options")
+	}
 	confirmV.KeyBindings = map[gocui.Key]func(*gocui.Gui, *gocui.View) error{
 		gocui.KeyEnter: func(g *gocui.Gui, v *gocui.View) error {
-			curLine, err := confirmV.GetData()
+			confirmed, err := confirmV.GetData()
 			if err != nil {
 				return err
 			}
-			log.Debug(g, curLine)
+			if confirmed == "no" {
+				confirmV.Close()
+				c.setContentByName(titlePanel, "")
+				go doReboot()
+				return c.setContentByName(notePanel, "Installation halted. Rebooting system in 5 seconds")
+			}
 			confirmV.Close()
-			//FIXME test customizeConfig
 			customizeConfig()
-			go widgets.DoInstall(g)
-			return showNext(c, "Start Installation", installPanel)
+			return showNext(c, installPanel)
+		},
+		gocui.KeyEsc: func(g *gocui.Gui, v *gocui.View) error {
+			confirmV.Close()
+			return showNext(c, cloudInitPanel)
 		},
 	}
 	c.AddElement(confirmPanel, confirmV)
@@ -521,6 +587,11 @@ func addConfirmPanel(c *Console) error {
 func addInstallPanel(c *Console) error {
 	maxX, maxY := c.Gui.Size()
 	installV := widgets.NewPanel(c.Gui, installPanel)
+	installV.PreShow = func() error {
+		go doInstall(c.Gui)
+		return c.setContentByName(footerPanel, "")
+	}
+	installV.Title = " Installing Harvester "
 	installV.SetLocation(maxX/8, maxY/8, maxX/8*7, maxY/8*7)
 	c.AddElement(installPanel, installV)
 	installV.Frame = true

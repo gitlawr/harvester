@@ -1,6 +1,10 @@
 package console
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestGetHarvesterManifestContent(t *testing.T) {
 	d := map[string]string{
@@ -16,14 +20,32 @@ func TestGetHStatus(t *testing.T) {
 	t.Log(s)
 }
 
-func TestFoo(t *testing.T) {
-	var m map[string]string
-	var l interface{} = &m
-	temp, ok := l.(*map[string]string)
-	if !ok {
-		t.Error("not ok")
+func TestGetFormattedServerURL(t *testing.T) {
+	testCases := []struct {
+		Name   string
+		input  string
+		output string
+	}{
+		{
+			Name:   "ip",
+			input:  "1.2.3.4",
+			output: "https://1.2.3.4:6443",
+		},
+		{
+			Name:   "domain name",
+			input:  "example.org",
+			output: "https://example.org:6443",
+		},
+		{
+			Name:   "full",
+			input:  "https://1.2.3.4:6443",
+			output: "https://1.2.3.4:6443",
+		},
 	}
-	t.Log(temp)
+	for _, testCase := range testCases {
+		got := getFormattedServerURL(testCase.input)
+		assert.Equal(t, testCase.output, got)
+	}
 }
 
 func TestGetSshKey(t *testing.T) {

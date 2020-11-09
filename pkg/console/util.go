@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ghodss/yaml"
+	"github.com/jroimartin/gocui"
 	cfg "github.com/rancher/harvester/pkg/console/config"
 	"github.com/rancher/k3os/pkg/config"
 )
@@ -70,17 +72,17 @@ func getSSHKeysFromURL(url string) ([]string, error) {
 	return strings.Split(body, "\n"), nil
 }
 
-func showNext(c *Console, title string, names ...string) error {
-	if title != "" {
-		titleV, err := c.GetElement(titlePanel)
-		if err != nil {
-			return err
-		}
-		titleV.SetContent(title)
+func getFormattedServerURL(addr string) string {
+	if !strings.HasPrefix(addr, "https://") {
+		addr = "https://" + addr
 	}
+	if !strings.HasSuffix(addr, ":6443") {
+		addr = addr + ":6443"
+	}
+	return addr
+}
 
-	showNoteV := false
-
+func showNext(c *Console, names ...string) error {
 	for _, name := range names {
 		v, err := c.GetElement(name)
 		if err != nil {
@@ -89,48 +91,16 @@ func showNext(c *Console, title string, names ...string) error {
 		if err := v.Show(); err != nil {
 			return err
 		}
-		if name == notePanel {
-			showNoteV = true
-		}
 	}
 
 	validatorV, err := c.GetElement(validatorPanel)
 	if err != nil {
 		return err
 	}
-	validatorV.Close()
-	if !showNoteV {
-		noteV, err := c.GetElement(notePanel)
-		if err != nil {
-			return err
-		}
-		noteV.Close()
+	if err := validatorV.Close(); err != nil {
+		return err
 	}
 	return nil
-}
-
-func setNote(c *Console, msg string) error {
-	noteV, err := c.GetElement(notePanel)
-	if err != nil {
-		return err
-	}
-	noteV.SetContent(msg)
-	if _, err := c.Gui.SetViewOnTop(notePanel); err != nil {
-		return err
-	}
-	return noteV.Show()
-}
-
-func setValidator(c *Console, msg string) error {
-	validatorV, err := c.GetElement(validatorPanel)
-	if err != nil {
-		return err
-	}
-	validatorV.SetContent(msg)
-	if _, err := c.Gui.SetViewOnTop(validatorPanel); err != nil {
-		return err
-	}
-	return validatorV.Show()
 }
 
 func customizeConfig() {
@@ -165,6 +135,99 @@ func customizeConfig() {
 		"--flannel-backend",
 		"none",
 	}
+}
+func doReboot() error {
+	time.Sleep(5 * time.Second)
+	return exec.Command("reboot").Run()
+}
+
+func doInstall(g *gocui.Gui) error {
+	var (
+		err      error
+		tempFile *os.File
+	)
+	if cfg.Config.K3OS.Install.ConfigURL == "" {
+		tempFile, err = ioutil.TempFile("/tmp", "k3os.XXXXXXXX")
+		if err != nil {
+			return err
+		}
+		defer tempFile.Close()
+
+		cfg.Config.K3OS.Install.ConfigURL = tempFile.Name()
+	}
+	ev, err := config.ToEnv(cfg.Config)
+	if err != nil {
+		return err
+	}
+	if tempFile != nil {
+		cfg.Config.K3OS.Install = nil
+		bytes, err := yaml.Marshal(&cfg.Config)
+		if err != nil {
+			return err
+		}
+		if _, err := tempFile.Write(bytes); err != nil {
+			return err
+		}
+		if err := tempFile.Close(); err != nil {
+			return err
+		}
+		defer os.Remove(tempFile.Name())
+	}
+	cmd := exec.Command("/usr/libexec/k3os/install")
+	cmd.Env = append(os.Environ(), ev...)
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return err
+	}
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	scanner := bufio.NewScanner(stdout)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		m := scanner.Text()
+		g.Update(func(g *gocui.Gui) error {
+			v, err := g.View(installPanel)
+			if err != nil {
+				return err
+			}
+			fmt.Fprintln(v, m)
+
+			lines := len(v.BufferLines())
+			_, sy := v.Size()
+			if lines > sy {
+				ox, oy := v.Origin()
+				v.SetOrigin(ox, oy+1)
+			}
+			return nil
+		})
+	}
+	scanner = bufio.NewScanner(stderr)
+	scanner.Split(bufio.ScanWords)
+	for scanner.Scan() {
+		m := scanner.Text()
+		g.Update(func(g *gocui.Gui) error {
+			v, err := g.View(installPanel)
+			if err != nil {
+				return err
+			}
+			fmt.Fprintln(v, m)
+
+			lines := len(v.BufferLines())
+			_, sy := v.Size()
+			if lines > sy {
+				ox, oy := v.Origin()
+				v.SetOrigin(ox, oy+1)
+			}
+			return nil
+		})
+	}
+	return nil
 }
 
 func getHarvesterManifestContent(values map[string]string) string {

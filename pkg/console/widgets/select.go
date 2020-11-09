@@ -80,20 +80,12 @@ func (s *Select) Show() error {
 }
 
 func (s *Select) Close() error {
-	v, err := s.g.View(s.Name)
-	if err != nil {
-		return err
-	}
 	optionViewName := s.Name + "-options"
-	ov, err := s.g.View(optionViewName)
-	if err != nil {
+	s.g.DeleteKeybindings(optionViewName)
+	if err := s.g.DeleteView(optionViewName); err != nil {
 		return err
 	}
-	ov.Frame = false
-	v.Frame = false
-	ov.Clear()
-	v.Clear()
-	return nil
+	return s.Panel.Close()
 }
 
 func (s *Select) GetData() (string, error) {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/jroimartin/gocui"
+	"github.com/rancher/harvester/pkg/console/log"
 )
 
 type Panel struct {
@@ -12,6 +13,7 @@ type Panel struct {
 	Title   string
 	Frame   bool
 	Wrap    bool
+	Focus   bool
 	FgColor gocui.Attribute
 	Content string
 	X0      int
@@ -19,13 +21,18 @@ type Panel struct {
 	Y0      int
 	Y1      int
 
+	// Hook functions
+	PreShow   func() error
+	PostClose func() error
+
 	KeyBindings map[gocui.Key]func(*gocui.Gui, *gocui.View) error
 }
 
 func NewPanel(g *gocui.Gui, name string) *Panel {
 	return &Panel{
-		g:    g,
-		Name: name,
+		g:     g,
+		Name:  name,
+		Focus: true,
 	}
 }
 
@@ -34,16 +41,30 @@ func (p *Panel) GetName() string {
 }
 
 func (p *Panel) Close() error {
-	v, err := p.g.View(p.Name)
-	if err != nil {
+	if _, err := p.g.View(p.Name); err == gocui.ErrUnknownView {
+		return nil
+	} else if err != nil {
 		return err
 	}
-	v.Frame = false
-	v.Clear()
+	p.g.DeleteKeybindings(p.Name)
+	if err := p.g.DeleteView(p.Name); err != nil {
+		return err
+	}
+
+	if p.PostClose != nil {
+		if err := p.PostClose(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
 func (p *Panel) Show() error {
+	if p.PreShow != nil {
+		if err := p.PreShow(); err != nil {
+			return err
+		}
+	}
 	if p.X0 == 0 && p.X1 == 0 && p.Y0 == 0 && p.Y1 == 0 {
 		maxX, maxY := p.g.Size()
 		p.X0 = maxX / 4
@@ -64,8 +85,11 @@ func (p *Panel) Show() error {
 			return err
 		}
 
-		if _, err := p.g.SetCurrentView(p.Name); err != nil {
-			return err
+		if p.Focus {
+			log.Debug(p.g, "SetCurrentView ", p.Name)
+			if _, err := p.g.SetCurrentView(p.Name); err != nil {
+				return err
+			}
 		}
 		for k, f := range p.KeyBindings {
 			if err := p.g.SetKeybinding(p.Name, k, gocui.ModNone, f); err != nil {
@@ -73,7 +97,6 @@ func (p *Panel) Show() error {
 			}
 		}
 	}
-
 	return nil
 }
 
@@ -88,7 +111,7 @@ func (p *Panel) SetContent(content string) {
 	p.Content = content
 	p.g.Update(func(g *gocui.Gui) error {
 		v, err := p.g.View(p.Name)
-		if err != nil {
+		if err != nil && err != gocui.ErrUnknownView {
 			return err
 		}
 		v.Clear()

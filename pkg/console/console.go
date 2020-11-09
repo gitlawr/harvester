@@ -52,6 +52,22 @@ func (c *Console) AddElement(name string, element widgets.Element) {
 	c.elements[name] = element
 }
 
+func (c *Console) setContentByName(name string, content string) error {
+	v, err := c.GetElement(name)
+	if err != nil {
+		return err
+	}
+	if content == "" {
+		return v.Close()
+	}
+	if err := v.Show(); err != nil {
+		return err
+	}
+	v.SetContent(content)
+	_, err = c.Gui.SetViewOnTop(name)
+	return err
+}
+
 func (c *Console) doRun() error {
 	defer c.Close()
 
@@ -72,6 +88,7 @@ func (c *Console) doRun() error {
 }
 
 func setGlobalKeyBindings(g *gocui.Gui) error {
+	g.InputEsc = true
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		return err
 	}
