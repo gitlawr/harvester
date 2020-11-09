@@ -208,7 +208,7 @@ func doInstall(g *gocui.Gui) error {
 		})
 	}
 	scanner = bufio.NewScanner(stderr)
-	scanner.Split(bufio.ScanWords)
+	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		m := scanner.Text()
 		g.Update(func(g *gocui.Gui) error {
