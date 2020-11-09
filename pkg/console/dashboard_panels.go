@@ -138,14 +138,8 @@ func harvesterPodStatus() (string, error) {
 
 func getHarvesterStatus() string {
 	if !installed {
-		if !k8sIsReady() {
-			return "Waiting Kubernetes to be ready"
-		}
-		if !nodeIsReady() {
-			return "Waiting nodes to be ready"
-		}
-		if !chartIsInstalled() {
-			return "Waiting Harvester chart to be installed"
+		if !k8sIsReady() || !nodeIsReady() || !chartIsInstalled() {
+			return "Harvester is installing"
 		}
 	}
 	installed = true
