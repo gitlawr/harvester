@@ -1,4 +1,4 @@
-From 31cc1219117c0274520b53ed54f995a801f41e23 Mon Sep 17 00:00:00 2001
+From 4acc362435ace725bfa5625061624e3b14ac8ae4 Mon Sep 17 00:00:00 2001
 From: gitlawr <lawrleegle@gmail.com>
 Date: Mon, 2 Nov 2020 10:30:49 +0800
 Subject: [PATCH] Add Harvester bundle
@@ -9,13 +9,13 @@ Subject: [PATCH] Add Harvester bundle
  images/70-iso/Dockerfile                 | 11 +++
  images/70-iso/grub.cfg                   | 22 +-----
  images/output/01-full/Dockerfile         |  6 --
- install.sh                               | 92 ++++++++++++++++--------
+ install.sh                               | 93 ++++++++++++++++--------
  main.go                                  |  7 ++
  overlay/etc/profile.d/console-profile.sh |  7 ++
  overlay/etc/ssh/sshd_config              |  2 +-
  pkg/cli/install/install.go               |  4 +-
  scripts/images                           |  2 +-
- 11 files changed, 97 insertions(+), 61 deletions(-)
+ 11 files changed, 98 insertions(+), 61 deletions(-)
  create mode 100755 overlay/etc/profile.d/console-profile.sh
 
 diff --git a/images/20-progs/Dockerfile b/images/20-progs/Dockerfile
@@ -132,7 +132,7 @@ index 317b0e5..ff28f92 100644
 -COPY --from=tar /output/userspace.tar /output/k3os-rootfs-${ARCH}.tar
 -RUN gzip /output/k3os-rootfs-${ARCH}.tar
 diff --git a/install.sh b/install.sh
-index 2d931ba..e606706 100755
+index 2d931ba..211d5fa 100755
 --- a/install.sh
 +++ b/install.sh
 @@ -81,11 +81,11 @@ do_format()
@@ -149,7 +149,7 @@ index 2d931ba..e606706 100755
      fi
      parted -s ${DEVICE} set 1 ${BOOTFLAG} on
      partprobe ${DEVICE} 2>/dev/null || true
-@@ -147,6 +147,62 @@ do_copy()
+@@ -147,6 +147,63 @@ do_copy()
              touch ${TARGET}/k3os/system/poweroff
          fi
      fi
@@ -199,9 +199,10 @@ index 2d931ba..e606706 100755
 +    ctr -n k8s.io images import /var/lib/rancher/k3s/agent/images/harvester*
 +    rm /var/lib/rancher/k3s/agent/images/harvester*
 +    # stop containerd
-+    pkill containerd && echo "finish loading images"
++    pkill containerd
 +    exit
 +EOF
++    sleep 5
 +    #cleanup
 +    umount bin sbin k3os dev proc etc
 +    mount --make-rslave lib
@@ -212,7 +213,7 @@ index 2d931ba..e606706 100755
  }
  
  install_grub()
-@@ -165,7 +221,7 @@ set gfxpayload=keep
+@@ -165,7 +222,7 @@ set gfxpayload=keep
  insmod all_video
  insmod gfxterm
  
@@ -221,7 +222,7 @@ index 2d931ba..e606706 100755
    search.fs_label K3OS_STATE root
    set sqfile=/k3os/system/kernel/current/kernel.squashfs
    loopback loop0 /\$sqfile
-@@ -173,33 +229,6 @@ menuentry "k3OS Current" {
+@@ -173,33 +230,6 @@ menuentry "k3OS Current" {
    linux (loop0)/vmlinuz printk.devkmsg=on console=tty1 $GRUB_DEBUG
    initrd /k3os/system/kernel/current/initrd
  }
@@ -255,7 +256,7 @@ index 2d931ba..e606706 100755
  EOF
      if [ -z "${K3OS_INSTALL_TTY}" ]; then
          TTY=$(tty | sed 's!/dev/!!')
-@@ -371,7 +400,8 @@ fi
+@@ -371,7 +401,8 @@ fi
  if [ "$K3OS_INSTALL_POWER_OFF" = true ] || grep -q 'k3os.install.power_off=true' /proc/cmdline; then
      poweroff -f
  else
