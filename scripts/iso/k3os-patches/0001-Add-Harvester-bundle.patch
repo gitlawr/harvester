@@ -1,4 +1,4 @@
-From 3de17d97ed8b1aeca3cc2042c7e85f0d591f2b6d Mon Sep 17 00:00:00 2001
+From 31cc1219117c0274520b53ed54f995a801f41e23 Mon Sep 17 00:00:00 2001
 From: gitlawr <lawrleegle@gmail.com>
 Date: Mon, 2 Nov 2020 10:30:49 +0800
 Subject: [PATCH] Add Harvester bundle
@@ -6,10 +6,10 @@ Subject: [PATCH] Add Harvester bundle
 ---
  images/20-progs/Dockerfile               |  3 +
  images/20-rootfs/Dockerfile              |  2 +
- images/70-iso/Dockerfile                 | 12 ++++
+ images/70-iso/Dockerfile                 | 11 +++
  images/70-iso/grub.cfg                   | 22 +-----
  images/output/01-full/Dockerfile         |  6 --
- install.sh                               | 91 ++++++++++++++++--------
+ install.sh                               | 92 ++++++++++++++++--------
  main.go                                  |  7 ++
  overlay/etc/profile.d/console-profile.sh |  7 ++
  overlay/etc/ssh/sshd_config              |  2 +-
@@ -50,7 +50,7 @@ index e4333ff..e4183db 100644
  COPY install.sh /usr/src/image/libexec/k3os/install
  RUN sed -i -e "s/%VERSION%/${VERSION}/g" -e "s/%ARCH%/${ARCH}/g" /usr/src/image/lib/os-release
 diff --git a/images/70-iso/Dockerfile b/images/70-iso/Dockerfile
-index 6295445..d3eca62 100644
+index 6295445..b0ce94f 100644
 --- a/images/70-iso/Dockerfile
 +++ b/images/70-iso/Dockerfile
 @@ -1,3 +1,4 @@
@@ -58,7 +58,7 @@ index 6295445..d3eca62 100644
  ARG REPO
  ARG TAG
  FROM ${REPO}/k3os-package:${TAG} as package
-@@ -21,6 +22,17 @@ COPY grub.cfg /usr/src/iso/boot/grub/grub.cfg
+@@ -21,6 +22,16 @@ COPY grub.cfg /usr/src/iso/boot/grub/grub.cfg
  COPY --from=package /output/ /usr/src/iso/
  
  COPY config.yaml /usr/src/iso/k3os/system/
@@ -68,7 +68,6 @@ index 6295445..d3eca62 100644
 +    /usr/src/iso/var/lib/rancher/k3s/server/manifests
 +COPY charts/* /usr/src/iso/var/lib/rancher/k3s/server/static/charts
 +COPY manifests/* /usr/src/iso/var/lib/rancher/k3s/server/manifests
-+#COPY harvester-images.tar.zst /usr/src/iso/var/lib/rancher/k3s/agent/images
 +RUN --mount=type=bind,source=/,target=/ctx cp /ctx/harvester-images.tar.zst \
 +    /usr/src/iso/var/lib/rancher/k3s/agent/images &>/dev/null || true
 +COPY cni /usr/src/iso/cni
@@ -133,7 +132,7 @@ index 317b0e5..ff28f92 100644
 -COPY --from=tar /output/userspace.tar /output/k3os-rootfs-${ARCH}.tar
 -RUN gzip /output/k3os-rootfs-${ARCH}.tar
 diff --git a/install.sh b/install.sh
-index 2d931ba..4d7ba78 100755
+index 2d931ba..e606706 100755
 --- a/install.sh
 +++ b/install.sh
 @@ -81,11 +81,11 @@ do_format()
@@ -150,7 +149,7 @@ index 2d931ba..4d7ba78 100755
      fi
      parted -s ${DEVICE} set 1 ${BOOTFLAG} on
      partprobe ${DEVICE} 2>/dev/null || true
-@@ -147,6 +147,61 @@ do_copy()
+@@ -147,6 +147,62 @@ do_copy()
              touch ${TARGET}/k3os/system/poweroff
          fi
      fi
@@ -189,7 +188,7 @@ index 2d931ba..4d7ba78 100755
 +    -c /var/lib/rancher/k3s/agent/etc/containerd/config.toml \
 +    -a /run/k3s/containerd/containerd.sock \
 +    --state /run/k3s/containerd \
-+    --root /var/lib/rancher/k3s/agent/containerd &
++    --root /var/lib/rancher/k3s/agent/containerd &>/dev/null &
 +
 +    #wait for containerd to be ready
 +    until ctr --connect-timeout 1s version>/dev/null
@@ -200,7 +199,8 @@ index 2d931ba..4d7ba78 100755
 +    ctr -n k8s.io images import /var/lib/rancher/k3s/agent/images/harvester*
 +    rm /var/lib/rancher/k3s/agent/images/harvester*
 +    # stop containerd
-+    pkill containerd
++    pkill containerd && echo "finish loading images"
++    exit
 +EOF
 +    #cleanup
 +    umount bin sbin k3os dev proc etc
@@ -212,7 +212,7 @@ index 2d931ba..4d7ba78 100755
  }
  
  install_grub()
-@@ -165,7 +220,7 @@ set gfxpayload=keep
+@@ -165,7 +221,7 @@ set gfxpayload=keep
  insmod all_video
  insmod gfxterm
  
@@ -221,7 +221,7 @@ index 2d931ba..4d7ba78 100755
    search.fs_label K3OS_STATE root
    set sqfile=/k3os/system/kernel/current/kernel.squashfs
    loopback loop0 /\$sqfile
-@@ -173,33 +228,6 @@ menuentry "k3OS Current" {
+@@ -173,33 +229,6 @@ menuentry "k3OS Current" {
    linux (loop0)/vmlinuz printk.devkmsg=on console=tty1 $GRUB_DEBUG
    initrd /k3os/system/kernel/current/initrd
  }
@@ -255,7 +255,7 @@ index 2d931ba..4d7ba78 100755
  EOF
      if [ -z "${K3OS_INSTALL_TTY}" ]; then
          TTY=$(tty | sed 's!/dev/!!')
-@@ -371,7 +399,8 @@ fi
+@@ -371,7 +400,8 @@ fi
  if [ "$K3OS_INSTALL_POWER_OFF" = true ] || grep -q 'k3os.install.power_off=true' /proc/cmdline; then
      poweroff -f
  else
