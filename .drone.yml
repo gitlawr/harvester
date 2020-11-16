@@ -173,11 +173,6 @@ steps:
   when:
     instance:
     - drone-publish.rancher.io
-    ref:
-    - refs/head/master
-    - refs/tags/*
-    event:
-    - tag
 
 - name: github_binary_release
   image: plugins/github-release
@@ -194,11 +189,6 @@ steps:
   when:
     instance:
     - drone-publish.rancher.io
-    ref:
-    - refs/head/master
-    - refs/tags/*
-    event:
-    - tag
 
 volumes:
 - name: docker
@@ -208,5 +198,8 @@ volumes:
 depends_on:
 - manifest
 
+trigger:
+  event:
+  - tag
 node:
   instance: agent-amd64
