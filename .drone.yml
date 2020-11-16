@@ -97,6 +97,9 @@ volumes:
   host:
     path: /var/run/docker.sock
 
+node:
+  instance: agent-amd64
+
 ---
 kind: pipeline
 name: manifest
@@ -147,6 +150,9 @@ steps:
 
 depends_on:
 - amd64
+
+node:
+  instance: agent-amd64
 
 ---
 kind: pipeline
@@ -201,4 +207,6 @@ volumes:
 
 depends_on:
 - manifest
-  
+
+node:
+  instance: agent-amd64
