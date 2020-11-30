@@ -7,6 +7,8 @@ import (
 	"github.com/rancher/apiserver/pkg/types"
 	"github.com/rancher/wrangler/pkg/schemas/validation"
 	kv1alpha3 "kubevirt.io/client-go/api/v1alpha3"
+	cdiv1 "kubevirt.io/containerized-data-importer/pkg/apis/core/v1beta1"
+	cdicontroller "kubevirt.io/containerized-data-importer/pkg/controller"
 
 	cdiv1beta1 "github.com/rancher/harvester/pkg/generated/controllers/cdi.kubevirt.io/v1beta1"
 )
@@ -14,6 +16,16 @@ import (
 type dvStore struct {
 	types.Store
 	dvCache cdiv1beta1.DataVolumeCache
+}
+
+func (s *dvStore) Create(request *types.APIRequest, schema *types.APISchema, data types.APIObject) (types.APIObject, error) {
+	data.Data().SetNested(cdiv1.DataVolumeKubeVirt, "metadata", "annotations", cdicontroller.AnnContentType)
+	return s.Store.Create(request, request.Schema, data)
+}
+
+func (s *dvStore) Update(request *types.APIRequest, schema *types.APISchema, data types.APIObject, id string) (types.APIObject, error) {
+	data.Data().SetNested(cdiv1.DataVolumeKubeVirt, "metadata", "annotations", cdicontroller.AnnContentType)
+	return s.Store.Update(request, request.Schema, data, id)
 }
 
 func (s *dvStore) Delete(request *types.APIRequest, schema *types.APISchema, id string) (types.APIObject, error) {
