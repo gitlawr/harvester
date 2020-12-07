@@ -13,6 +13,5 @@ cd ../harvester-installer/scripts
 
 ./ci
 
-mkdir -p ../../harvester/dist/artifacts
-cp ../dist/artifacts/* ../../harvester/dist/artifacts
+for file in `find ../dist/artifacts -type f -name 'k3os*'`; do mv "$file" "../${file/k3os/harvester}"; done
 
