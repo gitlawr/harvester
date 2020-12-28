@@ -2,6 +2,8 @@ package api_test
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -64,6 +66,10 @@ var _ = BeforeSuite(func(done Done) {
 	By("construct harvester runtime")
 	err = runtime.Construct(testCtx, kubeConfig)
 	MustNotError(err)
+
+	By("check env")
+	envs := os.Environ()
+	By(fmt.Sprintf("%+v", envs))
 
 	By("set harvester config")
 	err = runtime.SetConfig(kubeConfig, testCluster)
