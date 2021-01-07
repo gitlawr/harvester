@@ -9,6 +9,7 @@ import (
 	"github.com/rancher/harvester/pkg/api/network"
 	"github.com/rancher/harvester/pkg/api/node"
 	"github.com/rancher/harvester/pkg/api/setting"
+	"github.com/rancher/harvester/pkg/api/upgrade"
 	"github.com/rancher/harvester/pkg/api/user"
 	"github.com/rancher/harvester/pkg/api/vm"
 	"github.com/rancher/harvester/pkg/api/vmtemplate"
@@ -36,6 +37,7 @@ func Setup(ctx context.Context, server *server.Server, controllers *server.Contr
 		vmtemplate.RegisterSchema,
 		vm.RegisterSchema,
 		setting.RegisterSchema,
+		upgrade.RegisterSchema,
 		user.RegisterSchema,
 		network.RegisterSchema,
 		node.RegisterSchema,

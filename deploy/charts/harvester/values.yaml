@@ -257,6 +257,10 @@ containers:
     ## could config more than one mode, separated by comma
     authMode: "localUser"
 
+    ## Specify whether to run in HCI mode. This option enables additional controllers.
+    ## defaults to "false", this will be enabled in ISO mode installation.
+    hciMode: false
+
     ## Specify the command.
     ##
     command: []
@@ -470,6 +474,12 @@ longhorn:
 
   ## Specify the namespace to install longhorn.
   namespaceOverride: longhorn-system
+
+  image:
+    longhorn:
+      manager:
+        repository: joshimoo/longhorn-manager
+        tag: 2127-harvester-test-v1
 
   csi:
     ## Specify the kubelet root directory.

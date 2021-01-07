@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	cniv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
+	upgradev1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
 	controllergen "github.com/rancher/wrangler/pkg/controller-gen"
 	"github.com/rancher/wrangler/pkg/controller-gen/args"
 	"github.com/sirupsen/logrus"
@@ -24,13 +25,14 @@ func main() {
 		Groups: map[string]args.Group{
 			"harvester.cattle.io": {
 				Types: []interface{}{
-					harv1.VirtualMachineImage{},
-					harv1.Setting{},
 					harv1.KeyPair{},
+					harv1.Preference{},
+					harv1.Setting{},
+					harv1.Upgrade{},
+					harv1.User{},
+					harv1.VirtualMachineImage{},
 					harv1.VirtualMachineTemplate{},
 					harv1.VirtualMachineTemplateVersion{},
-					harv1.User{},
-					harv1.Preference{},
 				},
 				GenerateTypes:   true,
 				GenerateClients: true,
@@ -54,6 +56,13 @@ func main() {
 			cniv1.SchemeGroupVersion.Group: {
 				Types: []interface{}{
 					cniv1.NetworkAttachmentDefinition{},
+				},
+				GenerateTypes:   false,
+				GenerateClients: true,
+			},
+			upgradev1.SchemeGroupVersion.Group: {
+				Types: []interface{}{
+					upgradev1.Plan{},
 				},
 				GenerateTypes:   false,
 				GenerateClients: true,
