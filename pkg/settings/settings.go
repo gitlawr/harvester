@@ -27,6 +27,8 @@ var (
 	UIIndex                = NewSetting("ui-index", "https://releases.rancher.com/harvester-ui/latest/index.html")
 	UIPath                 = NewSetting("ui-path", "/usr/share/rancher/harvester")
 	APIUISource            = NewSetting("api-ui-source", "auto") // Options are 'auto', 'external' or 'bundled'
+	UpgradableVersions     = NewSetting("upgradable-versions", "")
+	VersionMetadataURL     = NewSetting("version-metadata-url", "https://raw.githubusercontent.com/rancher/harvester/master/version-metadata.json")
 )
 
 func init() {
