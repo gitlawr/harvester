@@ -33,6 +33,7 @@ type Interface interface {
 	KeyPair() KeyPairController
 	Preference() PreferenceController
 	Setting() SettingController
+	Upgrade() UpgradeController
 	User() UserController
 	VirtualMachineImage() VirtualMachineImageController
 	VirtualMachineTemplate() VirtualMachineTemplateController
@@ -57,6 +58,9 @@ func (c *version) Preference() PreferenceController {
 }
 func (c *version) Setting() SettingController {
 	return NewSettingController(schema.GroupVersionKind{Group: "harvester.cattle.io", Version: "v1alpha1", Kind: "Setting"}, "settings", false, c.controllerFactory)
+}
+func (c *version) Upgrade() UpgradeController {
+	return NewUpgradeController(schema.GroupVersionKind{Group: "harvester.cattle.io", Version: "v1alpha1", Kind: "Upgrade"}, "upgrades", true, c.controllerFactory)
 }
 func (c *version) User() UserController {
 	return NewUserController(schema.GroupVersionKind{Group: "harvester.cattle.io", Version: "v1alpha1", Kind: "User"}, "users", false, c.controllerFactory)

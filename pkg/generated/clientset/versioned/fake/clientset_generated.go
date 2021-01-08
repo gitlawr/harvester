@@ -28,6 +28,8 @@ import (
 	fakek8scnicncfiov1 "github.com/rancher/harvester/pkg/generated/clientset/versioned/typed/k8s.cni.cncf.io/v1/fake"
 	kubevirtv1 "github.com/rancher/harvester/pkg/generated/clientset/versioned/typed/kubevirt.io/v1"
 	fakekubevirtv1 "github.com/rancher/harvester/pkg/generated/clientset/versioned/typed/kubevirt.io/v1/fake"
+	upgradev1 "github.com/rancher/harvester/pkg/generated/clientset/versioned/typed/upgrade.cattle.io/v1"
+	fakeupgradev1 "github.com/rancher/harvester/pkg/generated/clientset/versioned/typed/upgrade.cattle.io/v1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -100,4 +102,9 @@ func (c *Clientset) K8sCniCncfIoV1() k8scnicncfiov1.K8sCniCncfIoV1Interface {
 // KubevirtV1 retrieves the KubevirtV1Client
 func (c *Clientset) KubevirtV1() kubevirtv1.KubevirtV1Interface {
 	return &fakekubevirtv1.FakeKubevirtV1{Fake: &c.Fake}
+}
+
+// UpgradeV1 retrieves the UpgradeV1Client
+func (c *Clientset) UpgradeV1() upgradev1.UpgradeV1Interface {
+	return &fakeupgradev1.FakeUpgradeV1{Fake: &c.Fake}
 }
