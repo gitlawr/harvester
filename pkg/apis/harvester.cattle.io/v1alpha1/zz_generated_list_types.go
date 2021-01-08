@@ -26,16 +26,33 @@ import (
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// VirtualMachineImageList is a list of VirtualMachineImage resources
-type VirtualMachineImageList struct {
+// KeyPairList is a list of KeyPair resources
+type KeyPairList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 
-	Items []VirtualMachineImage `json:"items"`
+	Items []KeyPair `json:"items"`
 }
 
-func NewVirtualMachineImage(namespace, name string, obj VirtualMachineImage) *VirtualMachineImage {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("VirtualMachineImage").ToAPIVersionAndKind()
+func NewKeyPair(namespace, name string, obj KeyPair) *KeyPair {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("KeyPair").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// PreferenceList is a list of Preference resources
+type PreferenceList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []Preference `json:"items"`
+}
+
+func NewPreference(namespace, name string, obj Preference) *Preference {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("Preference").ToAPIVersionAndKind()
 	obj.Name = name
 	obj.Namespace = namespace
 	return &obj
@@ -60,16 +77,50 @@ func NewSetting(namespace, name string, obj Setting) *Setting {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// KeyPairList is a list of KeyPair resources
-type KeyPairList struct {
+// UpgradeList is a list of Upgrade resources
+type UpgradeList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 
-	Items []KeyPair `json:"items"`
+	Items []Upgrade `json:"items"`
 }
 
-func NewKeyPair(namespace, name string, obj KeyPair) *KeyPair {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("KeyPair").ToAPIVersionAndKind()
+func NewUpgrade(namespace, name string, obj Upgrade) *Upgrade {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("Upgrade").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// UserList is a list of User resources
+type UserList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []User `json:"items"`
+}
+
+func NewUser(namespace, name string, obj User) *User {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("User").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// VirtualMachineImageList is a list of VirtualMachineImage resources
+type VirtualMachineImageList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []VirtualMachineImage `json:"items"`
+}
+
+func NewVirtualMachineImage(namespace, name string, obj VirtualMachineImage) *VirtualMachineImage {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("VirtualMachineImage").ToAPIVersionAndKind()
 	obj.Name = name
 	obj.Namespace = namespace
 	return &obj
@@ -104,40 +155,6 @@ type VirtualMachineTemplateVersionList struct {
 
 func NewVirtualMachineTemplateVersion(namespace, name string, obj VirtualMachineTemplateVersion) *VirtualMachineTemplateVersion {
 	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("VirtualMachineTemplateVersion").ToAPIVersionAndKind()
-	obj.Name = name
-	obj.Namespace = namespace
-	return &obj
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-// UserList is a list of User resources
-type UserList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []User `json:"items"`
-}
-
-func NewUser(namespace, name string, obj User) *User {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("User").ToAPIVersionAndKind()
-	obj.Name = name
-	obj.Namespace = namespace
-	return &obj
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-// PreferenceList is a list of Preference resources
-type PreferenceList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []Preference `json:"items"`
-}
-
-func NewPreference(namespace, name string, obj Preference) *Preference {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("Preference").ToAPIVersionAndKind()
 	obj.Name = name
 	obj.Namespace = namespace
 	return &obj
