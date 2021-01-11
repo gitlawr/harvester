@@ -566,6 +566,8 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5
 github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 h1:I0XW9+e1XWDxdcEniV4rQAIOPUGDq67JSCiRCgGCZLI=
 github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369/go.mod h1:BSXmuO+STAnVfrANrmjBb36TMTDstsz7MSK+HVaYKv4=
 github.com/maxbrunsfeld/counterfeiter v0.0.0-20181017030959-1aadac120687/go.mod h1:aoVsckWnsNzazwF2kmD+bzgdr4GBlbK91zsdivQJ2eU=
+github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2 h1:YocNLcTBdEdvY3iDK6jfWXvEaM5OCKkjxPKoJRdB3Gg=
+github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2/go.mod h1:76rfSfYPWj01Z85hUf/ituArm797mNKcvINh1OlsZKo=
 github.com/minio/md5-simd v1.1.0 h1:QPfiOqlZH+Cj9teu0t9b1nTBfPbyTl16Of5MeuShdK4=
 github.com/minio/md5-simd v1.1.0/go.mod h1:XpBqgZULrMYD3R+M28PcmP0CkI7PEMzB3U77ZrKZ0Gw=
 github.com/minio/minio-go/v6 v6.0.57 h1:ixPkbKkyD7IhnluRgQpGSpHdpvNVaW6OD5R9IAO/9Tw=
@@ -742,6 +744,8 @@ github.com/rancher/lasso v0.0.0-20200905045615-7fcb07d6a20b h1:DQLpu44dsR+2qYvg1
 github.com/rancher/lasso v0.0.0-20200905045615-7fcb07d6a20b/go.mod h1:OhBBBO1pBwYp0hacWdnvSGOj+XE9yMLOLnaypIlic18=
 github.com/rancher/norman v0.0.0-20200714195611-b3163ad4ebc4 h1:9lH3XiG7lSoQVaqeZTmydzxasRSiYoc3PdOoAvpQAyc=
 github.com/rancher/norman v0.0.0-20200714195611-b3163ad4ebc4/go.mod h1:W9LfZ96OfjkWSGTy2DUqYPt47Jpzrs7eM0i3AAx6fOI=
+github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20201117180404-6f0145c68124 h1:Fh9sFtLVbxstFjLs5ZR0gb8bb6TEBPPb4oiylJedxOw=
+github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20201117180404-6f0145c68124/go.mod h1:Ja346o44aTPWADc/5Jm93+KgctT6KtftuOosgz0F2AM=
 github.com/rancher/wrangler v0.7.3-0.20201204033916-d7f8c90b22e5 h1:RVZ+y3F5w9fqL22SmjK5dnyhjw/6vnlckOOGbQ/NhO0=
 github.com/rancher/wrangler v0.7.3-0.20201204033916-d7f8c90b22e5/go.mod h1:goezjesEKwMxHLfltdjg9DW0xWV7txQee6vOuSDqXAI=
 github.com/rancher/wrangler-api v0.6.1-0.20200515193802-dcf70881b087 h1:+hiZFORh4fMvRSg5SIClz4y6nD5wkKLAdtPzjxyeHgs=

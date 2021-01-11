@@ -38,6 +38,7 @@ require (
 	github.com/k8snetworkplumbingwg/network-attachment-definition-client v0.0.0-20200331171230-d50e42f2b669
 	github.com/kubernetes/dashboard v1.10.1
 	github.com/mattn/go-isatty v0.0.12
+	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2
 	github.com/minio/minio-go/v6 v6.0.57
 	github.com/nxadm/tail v1.4.5 // indirect
 	github.com/onsi/ginkgo v1.14.0
@@ -47,6 +48,7 @@ require (
 	github.com/rancher/dynamiclistener v0.2.1-0.20200714201033-9c1939da3af9
 	github.com/rancher/lasso v0.0.0-20200905045615-7fcb07d6a20b
 	github.com/rancher/steve v0.0.0-20201110183734-21c7add15f64
+	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20201117180404-6f0145c68124
 	github.com/rancher/wrangler v0.7.1
 	github.com/rancher/wrangler-api v0.6.1-0.20200515193802-dcf70881b087
 	github.com/sirupsen/logrus v1.6.0
