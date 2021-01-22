@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"time"
 
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/cache"
+
 	k8sdashboardjwe "github.com/kubernetes/dashboard/src/app/backend/auth/jwe"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -24,31 +27,35 @@ const (
 )
 
 func WatchSecret(ctx context.Context, scaled *config.Scaled, namespace, name string) {
-	secrets := scaled.CoreFactory.Core().V1().Secret()
+	logrus.Infof("start watch secret %v", name)
 	opts := metav1.ListOptions{
 		FieldSelector: fmt.Sprintf("metadata.name=%s", name),
 	}
-	watcher, err := secrets.Watch(namespace, opts)
-	if err != nil {
-		logrus.Errorf("Failed to watch secret %s:%s, %v", namespace, name, err)
-		return
-	}
+	informer := cache.NewSharedIndexInformer(
+		&cache.ListWatch{
+			ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
+				return scaled.Management.CoreFactory.Core().V1().Secret().List(namespace, opts)
+			},
+			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
+				return scaled.Management.CoreFactory.Core().V1().Secret().Watch(namespace, opts)
+			},
+		},
+		&corev1.Secret{},
+		0, //Skip resync
+		cache.Indexers{})
 
-	for {
-		select {
-		case watchEvent := <-watcher.ResultChan():
-			if watch.Modified == watchEvent.Type {
-				if sec, ok := watchEvent.Object.(*corev1.Secret); ok {
-					if err := refreshKeyInTokenManager(sec, scaled); err != nil {
-						logrus.Errorf("Failed to update tokenManager with secret %s:%s, %v", namespace, name, err)
-						continue
-					}
+	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		UpdateFunc: func(oldObj interface{}, newObj interface{}) {
+			if sec, ok := newObj.(*corev1.Secret); ok {
+				logrus.Infof("+++++ update in secret informer")
+				if err := refreshKeyInTokenManager(sec, scaled); err != nil {
+					logrus.Errorf("Failed to update tokenManager with secret %s:%s, %v", namespace, name, err)
 				}
 			}
-		case <-ctx.Done():
-			return
-		}
-	}
+		},
+	})
+	informer.Run(ctx.Done())
+	logrus.Infof("finish watch secret %v", name)
 }
 
 func refreshKeyInTokenManager(sec *corev1.Secret, scaled *config.Scaled) (err error) {
