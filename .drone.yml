@@ -164,6 +164,8 @@ steps:
   volumes:
   - name: docker
     path: /var/run/docker.sock
+  - name: installer
+    path: /drone/harvester-installer
   when:
     instance:
     - drone-publish.rancher.io
@@ -184,6 +186,28 @@ steps:
     instance:
     - drone-publish.rancher.io
 
+- name: docker-publish
+  image: plugins/docker
+  settings:
+    build_args:
+      - ARCH=amd64
+      - TAG=harvester-${DRONE_TAG}-amd64
+    context: /drone/harvester-installer/package
+    custom_dns: 1.1.1.1
+    dockerfile: /drone/harvester-installer/package/Dockerfile
+    password:
+      from_secret: docker_password
+    repo: "rancher/harvester-bundle"
+    tag: "${DRONE_TAG}"
+    username:
+      from_secret: docker_username
+  volumes:
+  - name: installer
+    path: /drone/harvester-installer
+  when:
+    instance:
+      - drone-publish.rancher.io
+
 trigger:
   event:
   - tag
@@ -192,6 +216,8 @@ volumes:
 - name: docker
   host:
     path: /var/run/docker.sock
+- name: installer
+  temp: {}
 
 depends_on:
 - manifest
