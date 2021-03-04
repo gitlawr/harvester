@@ -11,6 +11,9 @@ git clone --branch ${HARVESTER_INSTALLER_VERSION} --single-branch --depth 1 http
 
 cd ../harvester-installer/scripts
 
+#test
+export HARVESTER_INSTALLER_OFFLINE_BUILD=1
+
 ./ci
 
 cd ..
