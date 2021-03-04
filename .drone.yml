@@ -35,7 +35,7 @@ steps:
     dockerfile: package/Dockerfile
     password:
       from_secret: docker_password
-    repo: "rancher/harvester"
+    repo: "lawr/harvester"
     tag: ${DRONE_BRANCH}-head-amd64
     username:
       from_secret: docker_username
@@ -58,7 +58,7 @@ steps:
     dockerfile: package/Dockerfile
     password:
       from_secret: docker_password
-    repo: "rancher/harvester"
+    repo: "lawr/harvester"
     tag: "${DRONE_TAG}-amd64"
     username:
       from_secret: docker_username
@@ -115,8 +115,8 @@ steps:
       from_secret: docker_password
     platforms:
     - linux/amd64
-    target: "rancher/harvester:${DRONE_BRANCH}-head"
-    template: "rancher/harvester:${DRONE_BRANCH}-head-ARCH"
+    target: "lawr/harvester:${DRONE_BRANCH}-head"
+    template: "lawr/harvester:${DRONE_BRANCH}-head-ARCH"
   when:
     ref:
       include:
@@ -134,8 +134,8 @@ steps:
       from_secret: docker_password
     platforms:
       - linux/amd64
-    target: "rancher/harvester:${DRONE_TAG}"
-    template: "rancher/harvester:${DRONE_TAG}-ARCH"
+    target: "lawr/harvester:${DRONE_TAG}"
+    template: "lawr/harvester:${DRONE_TAG}-ARCH"
   when:
     instance:
     - drone-publish.rancher.io
@@ -197,7 +197,7 @@ steps:
     dockerfile: /drone/harvester-installer/package/Dockerfile
     password:
       from_secret: docker_password
-    repo: "rancher/harvester-bundle"
+    repo: "lawr/harvester-bundle"
     tag: "${DRONE_TAG}"
     username:
       from_secret: docker_username
