@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+source $(dirname $0)/version
+
+cd $(dirname $0)/../package
+
+IMAGE=${REPO}/harvester-bundle:${TAG}
+DOCKERFILE=Dockerfile.bundle
+K3OS_TAG=harvester-${TAG}-${ARCH}
+if [ -e ${DOCKERFILE}.${ARCH} ]; then
+    DOCKERFILE=${DOCKERFILE}.${ARCH}
+fi
+
+docker build --build-arg K3OS_TAG=${K3OS_TAG} -f ${DOCKERFILE} -t ${IMAGE} .
+echo Built ${IMAGE}
