@@ -1,7 +1,7 @@
 ARG K3OS_TAG
 FROM rancher/k3os:${K3OS_TAG} as k3os
 
-FROM ubuntu:facol
+FROM ubuntu:focal
 
 ARG ARCH=amd64
 ENV KUBECTL_VERSION v1.20.4
