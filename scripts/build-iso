@@ -13,7 +13,7 @@ cd ../harvester-installer/scripts
 
 ./ci
 
-cd $(dirname $0)/..
+cd ..
 HARVESTER_DIR=../harvester
 cp -r manifests ${HARVESTER_DIR}/package
 cp k3os/images/70-iso/charts/harvester-*.tgz ${HARVESTER_DIR}/package
