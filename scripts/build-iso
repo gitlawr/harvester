@@ -18,8 +18,15 @@ export HARVESTER_INSTALLER_OFFLINE_BUILD=1
 
 cd ..
 HARVESTER_DIR=../harvester
+
+# Prepare files for the bundle image
 cp -r manifests ${HARVESTER_DIR}/package
 cp k3os/images/70-iso/charts/harvester-*.tgz ${HARVESTER_DIR}/package
+TAG=f02075c-amd64
+id=$(docker create rancher/k3os:harvester-${TAG})
+docker cp $id:/k3os ${HARVESTER_DIR}/package
+docker rm -v $id
+
 mkdir -p ${HARVESTER_DIR}/dist/artifacts
 cp dist/artifacts/* ${HARVESTER_DIR}/dist/artifacts
 
