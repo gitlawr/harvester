@@ -1,12 +1,9 @@
-ARG K3OS_TAG
-FROM rancher/k3os:${K3OS_TAG} as k3os
-
 FROM ubuntu:focal
 
 ARG ARCH=amd64
 ENV KUBECTL_VERSION v1.20.4
 
-COPY --from=k3os /k3os/system/ /k3os/system/
+COPY k3os/system/ /k3os/system
 COPY harvester-*.tgz /
 COPY upgrade_node.sh /usr/local/bin/upgrade_node.sh
 COPY manifests /manifests
