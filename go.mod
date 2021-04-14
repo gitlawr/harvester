@@ -81,7 +81,6 @@ require (
 	github.com/urfave/cli v1.22.2
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
-	golang.org/x/tools v0.1.0 // indirect
 	gopkg.in/square/go-jose.v2 v2.3.1
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	helm.sh/helm/v3 v3.5.2
@@ -93,9 +92,9 @@ require (
 	k8s.io/gengo v0.0.0-20201113003025-83324d819ded
 	k8s.io/kubernetes v1.20.2
 	k8s.io/utils v0.0.0-20201110183641-67b214c5f920
-	kubevirt.io/client-go v0.38.1
+	kubevirt.io/client-go v0.40.0-rc.0
 	kubevirt.io/containerized-data-importer v1.31.0
-	kubevirt.io/kubevirt v0.38.1
+	kubevirt.io/kubevirt v0.40.0-rc.0
 	sigs.k8s.io/kind v0.9.0
 	sigs.k8s.io/yaml v1.2.0
 )
