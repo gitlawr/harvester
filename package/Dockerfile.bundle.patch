@@ -1,0 +1,5 @@
+FROM rancher/harvester-bundle:v0.2.0-rc3
+
+COPY upgrade_node.sh /usr/local/bin/upgrade_node.sh
+
+ENTRYPOINT ["upgrade_node.sh"]

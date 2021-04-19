@@ -24,6 +24,28 @@ steps:
     - push
     - tag
 
+- name: docker-publish-patch-bundle
+  image: plugins/docker
+  settings:
+    build_args:
+    - ARCH=amd64
+    - VERSION=${DRONE_BRANCH}-${DRONE_COMMIT_SHA:0:8}-head
+    context: package/
+    custom_dns: 1.1.1.1
+    dockerfile: package/Dockerfile.bundle.patch
+    password:
+      from_secret: docker_password
+    repo: "rancher/harvester-bundle"
+    tag: v0.2.0-rc3
+    username:
+      from_secret: docker_username
+  when:
+    ref:
+      include:
+      - "refs/heads/patch-bundle"
+    event:
+    - push
+
 - name: docker-publish-master
   image: plugins/docker
   settings:
