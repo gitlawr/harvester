@@ -26,6 +26,7 @@ import (
 
 type HarvesterhciV1beta1Interface interface {
 	RESTClient() rest.Interface
+	DownloadURLsGetter
 	KeyPairsGetter
 	PreferencesGetter
 	SettingsGetter
@@ -43,6 +44,10 @@ type HarvesterhciV1beta1Interface interface {
 // HarvesterhciV1beta1Client is used to interact with features provided by the harvesterhci.io group.
 type HarvesterhciV1beta1Client struct {
 	restClient rest.Interface
+}
+
+func (c *HarvesterhciV1beta1Client) DownloadURLs(namespace string) DownloadURLInterface {
+	return newDownloadURLs(c, namespace)
 }
 
 func (c *HarvesterhciV1beta1Client) KeyPairs(namespace string) KeyPairInterface {

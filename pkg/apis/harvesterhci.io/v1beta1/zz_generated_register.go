@@ -28,6 +28,7 @@ import (
 )
 
 var (
+	DownloadURLResourceName                   = "downloadurls"
 	KeyPairResourceName                       = "keypairs"
 	PreferenceResourceName                    = "preferences"
 	SettingResourceName                       = "settings"
@@ -63,6 +64,8 @@ var (
 // Adds the list of known types to Scheme.
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
+		&DownloadURL{},
+		&DownloadURLList{},
 		&KeyPair{},
 		&KeyPairList{},
 		&Preference{},

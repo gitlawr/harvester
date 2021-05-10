@@ -26,6 +26,23 @@ import (
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
+// DownloadURLList is a list of DownloadURL resources
+type DownloadURLList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []DownloadURL `json:"items"`
+}
+
+func NewDownloadURL(namespace, name string, obj DownloadURL) *DownloadURL {
+	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("DownloadURL").ToAPIVersionAndKind()
+	obj.Name = name
+	obj.Namespace = namespace
+	return &obj
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 // KeyPairList is a list of KeyPair resources
 type KeyPairList struct {
 	metav1.TypeMeta `json:",inline"`

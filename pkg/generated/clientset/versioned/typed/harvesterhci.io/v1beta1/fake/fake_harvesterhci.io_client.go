@@ -28,6 +28,10 @@ type FakeHarvesterhciV1beta1 struct {
 	*testing.Fake
 }
 
+func (c *FakeHarvesterhciV1beta1) DownloadURLs(namespace string) v1beta1.DownloadURLInterface {
+	return &FakeDownloadURLs{c, namespace}
+}
+
 func (c *FakeHarvesterhciV1beta1) KeyPairs(namespace string) v1beta1.KeyPairInterface {
 	return &FakeKeyPairs{c, namespace}
 }

@@ -18,6 +18,8 @@ limitations under the License.
 
 package v1beta1
 
+type DownloadURLExpansion interface{}
+
 type KeyPairExpansion interface{}
 
 type PreferenceExpansion interface{}

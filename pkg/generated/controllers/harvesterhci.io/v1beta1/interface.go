@@ -30,6 +30,7 @@ func init() {
 }
 
 type Interface interface {
+	DownloadURL() DownloadURLController
 	KeyPair() KeyPairController
 	Preference() PreferenceController
 	Setting() SettingController
@@ -54,6 +55,9 @@ type version struct {
 	controllerFactory controller.SharedControllerFactory
 }
 
+func (c *version) DownloadURL() DownloadURLController {
+	return NewDownloadURLController(schema.GroupVersionKind{Group: "harvesterhci.io", Version: "v1beta1", Kind: "DownloadURL"}, "downloadurls", true, c.controllerFactory)
+}
 func (c *version) KeyPair() KeyPairController {
 	return NewKeyPairController(schema.GroupVersionKind{Group: "harvesterhci.io", Version: "v1beta1", Kind: "KeyPair"}, "keypairs", true, c.controllerFactory)
 }
