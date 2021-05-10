@@ -27,6 +27,7 @@ func main() {
 		Groups: map[string]args.Group{
 			"harvesterhci.io": {
 				Types: []interface{}{
+					harvesterv1.DownloadURL{},
 					harvesterv1.KeyPair{},
 					harvesterv1.Preference{},
 					harvesterv1.Setting{},

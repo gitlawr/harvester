@@ -2,6 +2,7 @@ package master
 
 import (
 	"context"
+	"github.com/harvester/harvester/pkg/controller/master/downloadurl"
 
 	"github.com/rancher/steve/pkg/server"
 	"github.com/rancher/wrangler/pkg/leader"
@@ -27,6 +28,7 @@ import (
 type registerFunc func(context.Context, *config.Management, config.Options) error
 
 var registerFuncs = []registerFunc{
+	downloadurl.Register,
 	image.Register,
 	keypair.Register,
 	migration.Register,
