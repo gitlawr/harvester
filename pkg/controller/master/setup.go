@@ -7,7 +7,6 @@ import (
 	"github.com/rancher/wrangler/pkg/leader"
 
 	"github.com/harvester/harvester/pkg/config"
-	"github.com/harvester/harvester/pkg/controller/master/auth"
 	"github.com/harvester/harvester/pkg/controller/master/backup"
 	"github.com/harvester/harvester/pkg/controller/master/image"
 	"github.com/harvester/harvester/pkg/controller/master/keypair"
@@ -52,7 +51,7 @@ func register(ctx context.Context, management *config.Management, options config
 		}
 	}
 
-	return auth.BootstrapAdmin(management, options.Namespace)
+	return nil
 }
 
 func Setup(ctx context.Context, server *server.Server, controllers *server.Controllers, options config.Options) error {
