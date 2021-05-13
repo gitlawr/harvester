@@ -1,4 +1,4 @@
-package crds
+package data
 
 import (
 	"context"
@@ -13,17 +13,15 @@ import (
 	"github.com/harvester/harvester/pkg/util/crd"
 )
 
-func Setup(ctx context.Context, restConfig *rest.Config) error {
-	return createCRDs(ctx, restConfig)
-}
-
-func createCRDs(ctx context.Context, restConfig *rest.Config) error {
+func addCRDs(ctx context.Context, restConfig *rest.Config) error {
 	factory, err := crd.NewFactoryFromClient(ctx, restConfig)
 	if err != nil {
 		return err
 	}
 	return factory.
 		BatchCreateCRDsIfNotExisted(
+			crd.NonNamespacedFromGV(rancherv3.SchemeGroupVersion, "GlobalRole"),
+			crd.NonNamespacedFromGV(rancherv3.SchemeGroupVersion, "RoleTemplate"),
 			crd.NonNamespacedFromGV(harvesterv1.SchemeGroupVersion, "Setting"),
 			crd.NonNamespacedFromGV(harvesterv1.SchemeGroupVersion, "User"),
 			crd.NonNamespacedFromGV(rancherv3.SchemeGroupVersion, "Setting"),
