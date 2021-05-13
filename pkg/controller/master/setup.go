@@ -7,13 +7,13 @@ import (
 	"github.com/rancher/wrangler/pkg/leader"
 
 	"github.com/harvester/harvester/pkg/config"
-	"github.com/harvester/harvester/pkg/controller/master/auth"
 	"github.com/harvester/harvester/pkg/controller/master/backup"
 	"github.com/harvester/harvester/pkg/controller/master/image"
 	"github.com/harvester/harvester/pkg/controller/master/keypair"
 	"github.com/harvester/harvester/pkg/controller/master/migration"
 	"github.com/harvester/harvester/pkg/controller/master/node"
 	"github.com/harvester/harvester/pkg/controller/master/rancher"
+	"github.com/harvester/harvester/pkg/controller/master/rbac"
 	"github.com/harvester/harvester/pkg/controller/master/setting"
 	"github.com/harvester/harvester/pkg/controller/master/supportbundle"
 	"github.com/harvester/harvester/pkg/controller/master/template"
@@ -41,6 +41,7 @@ var registerFuncs = []registerFunc{
 	backup.RegisterContent,
 	backup.RegisterRestore,
 	backup.RegisterBackupTarget,
+	rbac.Register,
 	rancher.Register,
 	supportbundle.Register,
 }
@@ -52,7 +53,7 @@ func register(ctx context.Context, management *config.Management, options config
 		}
 	}
 
-	return auth.BootstrapAdmin(management, options.Namespace)
+	return nil
 }
 
 func Setup(ctx context.Context, server *server.Server, controllers *server.Controllers, options config.Options) error {

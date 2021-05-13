@@ -24,9 +24,9 @@ import (
 	"github.com/harvester/harvester/pkg/api"
 	"github.com/harvester/harvester/pkg/api/auth"
 	"github.com/harvester/harvester/pkg/config"
-	"github.com/harvester/harvester/pkg/controller/crds"
 	"github.com/harvester/harvester/pkg/controller/global"
 	"github.com/harvester/harvester/pkg/controller/master"
+	"github.com/harvester/harvester/pkg/data"
 	"github.com/harvester/harvester/pkg/server/ui"
 )
 
@@ -147,7 +147,7 @@ func (s *HarvesterServer) generateSteveServer(options config.Options) error {
 
 	s.ASL = accesscontrol.NewAccessStore(s.Context, true, s.controllers.RBAC)
 
-	if err := crds.Setup(s.Context, s.RESTConfig); err != nil {
+	if err := data.Init(s.Context, scaled.Management, options.Namespace); err != nil {
 		return err
 	}
 

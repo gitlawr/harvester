@@ -1,4 +1,4 @@
-package auth
+package data
 
 import (
 	"fmt"
@@ -31,7 +31,7 @@ var defaultAdminLabel = map[string]string{
 
 // bootstrapAdmin checks if the bootstrapAdminConfig exists, if it does this indicates it has
 // already created the admin user and should not attempt it again. Otherwise attempt to create the admin.
-func BootstrapAdmin(mgmt *config.Management, namespace string) error {
+func addDefaultAdmin(mgmt *config.Management, namespace string) error {
 	if settings.NoDefaultAdmin.Get() == "true" {
 		return nil
 	}
