@@ -11,7 +11,7 @@ func Init(ctx context.Context, mgmtCtx *config.Management, namespace string) err
 	if err := addCRDs(ctx, mgmtCtx.RestConfig); err != nil {
 		return err
 	}
-	if err := addClusterRoles(mgmtCtx); err != nil {
+	if err := addRoles(mgmtCtx); err != nil {
 		return err
 	}
 	if err := addDefaultAdmin(mgmtCtx, namespace); err != nil {
@@ -23,5 +23,6 @@ func Init(ctx context.Context, mgmtCtx *config.Management, namespace string) err
 	if err := addTemplates(mgmtCtx, publicNamespace); err != nil {
 		return err
 	}
+
 	return nil
 }

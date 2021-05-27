@@ -20,6 +20,8 @@ func addCRDs(ctx context.Context, restConfig *rest.Config) error {
 	}
 	return factory.
 		BatchCreateCRDsIfNotExisted(
+			crd.NonNamespacedFromGV(rancherv3.SchemeGroupVersion, "GlobalRole"),
+			crd.NonNamespacedFromGV(rancherv3.SchemeGroupVersion, "RoleTemplate"),
 			crd.NonNamespacedFromGV(harvesterv1.SchemeGroupVersion, "Setting"),
 			crd.NonNamespacedFromGV(harvesterv1.SchemeGroupVersion, "User"),
 			crd.NonNamespacedFromGV(rancherv3.SchemeGroupVersion, "Setting"),
