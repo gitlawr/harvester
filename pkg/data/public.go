@@ -13,7 +13,7 @@ const (
 	publicNamespace = "harvester-public"
 )
 
-func addNamespaces(mgmtCtx *config.Management) error {
+func addPublicNamespace(mgmtCtx *config.Management) error {
 	namespaces := mgmtCtx.CoreFactory.Core().V1().Namespace()
 	roleBindings := mgmtCtx.RbacFactory.Rbac().V1().RoleBinding()
 
@@ -32,7 +32,7 @@ func addNamespaces(mgmtCtx *config.Management) error {
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: rbacv1.GroupName,
 			Kind:     "ClusterRole",
-			Name:     "harvester-read-only",
+			Name:     "read-only",
 		},
 		Subjects: []rbacv1.Subject{
 			{

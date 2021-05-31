@@ -17,7 +17,7 @@ func Init(ctx context.Context, mgmtCtx *config.Management, namespace string) err
 	if err := addDefaultAdmin(mgmtCtx, namespace); err != nil {
 		return err
 	}
-	if err := addNamespaces(mgmtCtx); err != nil {
+	if err := addPublicNamespace(mgmtCtx); err != nil {
 		return err
 	}
 	if err := addTemplates(mgmtCtx, publicNamespace); err != nil {

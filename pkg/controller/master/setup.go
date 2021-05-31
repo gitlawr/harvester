@@ -13,6 +13,7 @@ import (
 	"github.com/harvester/harvester/pkg/controller/master/migration"
 	"github.com/harvester/harvester/pkg/controller/master/node"
 	"github.com/harvester/harvester/pkg/controller/master/rancher"
+	"github.com/harvester/harvester/pkg/controller/master/rbac"
 	"github.com/harvester/harvester/pkg/controller/master/setting"
 	"github.com/harvester/harvester/pkg/controller/master/supportbundle"
 	"github.com/harvester/harvester/pkg/controller/master/template"
@@ -41,6 +42,7 @@ var registerFuncs = []registerFunc{
 	backup.RegisterRestore,
 	backup.RegisterBackupTarget,
 	rancher.Register,
+	rbac.Register,
 	supportbundle.Register,
 }
 

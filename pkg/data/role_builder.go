@@ -2,30 +2,32 @@ package data
 
 import (
 	"fmt"
+
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	rbacv1 "k8s.io/api/rbac/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
 var managedLabel = map[string]string{"harvesterhci.io/managed": "true"}
 
 const (
-	harvesterRoleNamePrefix = "harvester-"
+	aggregateToLabelPrefix = "rbac.authorization.k8s.io/aggregate-to-"
 )
 
 type roleBuilder struct {
-	previous          *roleBuilder
-	next              *roleBuilder
-	name              string
-	displayName       string
-	context           string
-	builtin           bool
-	external          bool
-	hidden            bool
-	administrative    bool
-	roleTemplateNames []string
-	rules             []*ruleBuilder
+	previous                    *roleBuilder
+	next                        *roleBuilder
+	name                        string
+	displayName                 string
+	context                     string
+	builtin                     bool
+	external                    bool
+	hidden                      bool
+	administrative              bool
+	aggregateToClusterRoleNames []string
+	roleTemplateNames           []string
+	rules                       []*ruleBuilder
 }
 
 func (rb *roleBuilder) String() string {
@@ -36,6 +38,12 @@ func newRoleBuilder() *roleBuilder {
 	return &roleBuilder{
 		builtin: true,
 	}
+}
+
+func (rb *roleBuilder) addClusterRole(name string, aggregateToClusterRoles ...string) *roleBuilder {
+	r := rb.addRole(name, name)
+	r.aggregateToClusterRoleNames = aggregateToClusterRoles
+	return r
 }
 
 func (rb *roleBuilder) addRoleTemplate(displayName, name, context string, external, hidden, administrative bool) *roleBuilder {
@@ -164,8 +172,8 @@ func (rb *roleBuilder) buildGlobalRoles() []runtime.Object {
 	var result []runtime.Object
 	for role := rb.first(); role != nil; role = role.next {
 		result = append(result, &v3.GlobalRole{
-			ObjectMeta: v1.ObjectMeta{
-				Name:   harvesterRoleNamePrefix + role.name,
+			ObjectMeta: metav1.ObjectMeta{
+				Name:   role.name,
 				Labels: managedLabel,
 			},
 			DisplayName: role.displayName,
@@ -181,8 +189,8 @@ func (rb *roleBuilder) buildRoleTemplates() []runtime.Object {
 	var result []runtime.Object
 	for roleTemplate := rb.first(); roleTemplate != nil; roleTemplate = roleTemplate.next {
 		result = append(result, &v3.RoleTemplate{
-			ObjectMeta: v1.ObjectMeta{
-				Name:   harvesterRoleNamePrefix + roleTemplate.name,
+			ObjectMeta: metav1.ObjectMeta{
+				Name:   roleTemplate.name,
 				Labels: managedLabel,
 			},
 			DisplayName:       roleTemplate.displayName,
@@ -196,5 +204,25 @@ func (rb *roleBuilder) buildRoleTemplates() []runtime.Object {
 		})
 	}
 
+	return result
+}
+
+func (rb *roleBuilder) buildClusterRoles() []runtime.Object {
+	var result []runtime.Object
+	for cr := rb.first(); cr != nil; cr = cr.next {
+		clusterRole := &rbacv1.ClusterRole{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:   cr.name,
+				Labels: map[string]string{},
+			},
+			Rules: cr.policyRules(),
+		}
+		if len(cr.aggregateToClusterRoleNames) > 0 {
+			for _, name := range cr.aggregateToClusterRoleNames {
+				clusterRole.Labels[aggregateToLabelPrefix+name] = "true"
+			}
+		}
+		result = append(result, clusterRole)
+	}
 	return result
 }
