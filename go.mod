@@ -12,7 +12,6 @@ replace (
 	github.com/openshift/api => github.com/openshift/api v0.0.0-20191219222812-2987a591a72c
 	github.com/openshift/client-go => github.com/openshift/client-go v0.0.0-20200521150516-05eb9880269c
 	github.com/operator-framework/operator-lifecycle-manager => github.com/operator-framework/operator-lifecycle-manager v0.0.0-20190128024246-5eb7ae5bdb7a
-	github.com/rancher/apiserver => github.com/cnrancher/apiserver v0.0.0-20210302022932-069aa785cb9f
 	github.com/rancher/rancher/pkg/apis => github.com/rancher/rancher/pkg/apis v0.0.0-20210304063736-65f7c844267b
 	github.com/rancher/rancher/pkg/client => github.com/rancher/rancher/pkg/client v0.0.0-20210304063736-65f7c844267b
 	k8s.io/api => k8s.io/api v0.20.4
@@ -69,19 +68,19 @@ require (
 	github.com/onsi/ginkgo v1.14.1
 	github.com/onsi/gomega v1.10.2
 	github.com/pkg/errors v0.9.1
-	github.com/rancher/apiserver v0.0.0-20210209001659-a17289640582
+	github.com/rancher/apiserver v0.0.0-20210519053359-f943376c4b42
 	github.com/rancher/dynamiclistener v0.2.1-0.20200910203214-85f32491cb09
-	github.com/rancher/lasso v0.0.0-20210219160604-9baf1c12751b
+	github.com/rancher/lasso v0.0.0-20210408231703-9ddd9378d08d
 	github.com/rancher/rancher v0.0.0-20210312225102-c824d91cd247
 	github.com/rancher/rancher/pkg/apis v0.0.0
-	github.com/rancher/steve v0.0.0-20210302143000-362617a677a9
+	github.com/rancher/steve v0.0.0-20210520191028-52f86dce9bd4
 	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20201117180404-6f0145c68124
-	github.com/rancher/wrangler v0.7.3-0.20210219161540-ef7fe9ce2443
+	github.com/rancher/wrangler v0.8.1-0.20210423003607-f71a90542852
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.6.3
 	github.com/urfave/cli v1.22.2
-	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
+	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	gopkg.in/square/go-jose.v2 v2.3.1
 	gopkg.in/yaml.v2 v2.4.0 // indirect
