@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	dashboardauthapi "github.com/kubernetes/dashboard/src/app/backend/auth/api"
 	"github.com/rancher/rancher/pkg/auth/requests"
 	rancherconfig "github.com/rancher/rancher/pkg/types/config"
-	steveauth "github.com/rancher/steve/pkg/auth"
 	"k8s.io/apiserver/pkg/authentication/user"
 	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/client-go/rest"
@@ -23,9 +23,11 @@ const (
 	jwtServiceAccountClaimSubject = "sub" // https://github.com/kubernetes/kubernetes/blob/3783e03dc9df61604c470aa21f198a888e3ec692/pkg/serviceaccount/claims.go#L64
 )
 
-func NewMiddleware(ctx context.Context, scaled *config.Scaled, rancherRestConfig *rest.Config, AddRancherAuthenticator bool) (*Middleware, error) {
+func NewMiddleware(ctx context.Context, scaled *config.Scaled, rancherRestConfig *rest.Config, AddRancherAuthenticator bool, pathPrefix string, ignorePrefix ...string) (*Middleware, error) {
 	middleware := &Middleware{
 		tokenManager: scaled.TokenManager,
+		pathPrefix:   pathPrefix,
+		ignorePrefix: ignorePrefix,
 	}
 
 	if !AddRancherAuthenticator {
@@ -53,9 +55,12 @@ func NewMiddleware(ctx context.Context, scaled *config.Scaled, rancherRestConfig
 type Middleware struct {
 	tokenManager         dashboardauthapi.TokenManager
 	rancherAuthenticator requests.Authenticator
+
+	pathPrefix   string
+	ignorePrefix []string
 }
 
-func (h *Middleware) ToAuthMiddleware() steveauth.Middleware {
+func (h *Middleware) ToAuthMiddleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 			if auth.IsRancherAuthMode() {
@@ -68,6 +73,10 @@ func (h *Middleware) ToAuthMiddleware() steveauth.Middleware {
 }
 
 func (h *Middleware) rancherAuth(rw http.ResponseWriter, r *http.Request, next http.Handler) {
+	if !h.matches(r.URL.Path) {
+		next.ServeHTTP(rw, r)
+		return
+	}
 	ok, u, groups, err := h.rancherAuthenticator.Authenticate(r)
 	if err != nil {
 		util.ResponseError(rw, http.StatusUnauthorized, err)
@@ -126,4 +135,16 @@ func (h *Middleware) getUserInfoFromToken(jweToken string) (userInfo user.Info, 
 	}
 
 	return impersonateAuthInfoToUserInfo(authInfo), nil
+}
+
+func (h Middleware) matches(path string) bool {
+	if strings.HasPrefix(path, h.pathPrefix) {
+		for _, prefix := range h.ignorePrefix {
+			if strings.HasPrefix(path, prefix) {
+				return false
+			}
+		}
+		return true
+	}
+	return false
 }

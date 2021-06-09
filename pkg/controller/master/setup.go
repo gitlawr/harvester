@@ -7,6 +7,7 @@ import (
 	"github.com/rancher/wrangler/pkg/leader"
 
 	"github.com/harvester/harvester/pkg/config"
+	"github.com/harvester/harvester/pkg/controller/master/aggregation"
 	"github.com/harvester/harvester/pkg/controller/master/auth"
 	"github.com/harvester/harvester/pkg/controller/master/backup"
 	"github.com/harvester/harvester/pkg/controller/master/image"
@@ -27,6 +28,7 @@ import (
 type registerFunc func(context.Context, *config.Management, config.Options) error
 
 var registerFuncs = []registerFunc{
+	aggregation.Register,
 	image.Register,
 	keypair.Register,
 	migration.Register,

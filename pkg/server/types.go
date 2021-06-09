@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/rancher/apiserver/pkg/store/apiroot"
+	"github.com/rancher/steve/pkg/aggregation"
 	"net/http"
 	"time"
 
@@ -155,7 +157,15 @@ func (s *HarvesterServer) ListenAndServe(listenerCfg *dynamiclistener.Config, op
 		listenOpts.TLSListenerConfig = *listenerCfg
 	}
 
-	return s.steve.ListenAndServe(s.Context, opts.HTTPSListenPort, opts.HTTPListenPort, listenOpts)
+	s.steve.StartAggregation(s.Context)
+	s.startAggregation(opts)
+
+	if err := server.ListenAndServe(s.Context, opts.HTTPSListenPort, opts.HTTPListenPort, s.Handler, listenOpts); err != nil {
+		return err
+	}
+
+	<-s.Context.Done()
+	return s.Context.Err()
 }
 
 // Scaled returns the *config.Scaled,
@@ -192,29 +202,33 @@ func (s *HarvesterServer) generateSteveServer(options config.Options) error {
 		return err
 	}
 
-	var authMiddleware steveauth.Middleware
+	var authMiddleware func(http.Handler) http.Handler
 	if !options.SkipAuthentication {
-		md, err := auth.NewMiddleware(s.Context, scaled, s.RancherRESTConfig, options.RancherEmbedded || options.RancherURL != "")
+		md, err := auth.NewMiddleware(s.Context, scaled, s.RancherRESTConfig, options.RancherEmbedded || options.RancherURL != "", "/v1", "/v1-public")
 		if err != nil {
 			return err
 		}
 		authMiddleware = md.ToAuthMiddleware()
+		logrus.Debug(authMiddleware)
 	}
 
-	router, err := NewRouter(scaled, s.RESTConfig, options, authMiddleware)
+	router, err := NewRouter(scaled, s.RESTConfig, options)
 	if err != nil {
 		return err
 	}
 
 	s.steve, err = steveserver.New(s.Context, s.RESTConfig, &steveserver.Options{
 		Controllers:     s.controllers,
-		AuthMiddleware:  authMiddleware,
+		AuthMiddleware:  steveauth.ExistingContext,
 		Router:          router.Routes,
 		AccessSetLookup: s.ASL,
 	})
 	if err != nil {
 		return err
 	}
+
+	apiroot.Register(s.steve.BaseSchemas, []string{"v1", "v1/harvester"}, "proxy:/apis")
+	s.Handler = authMiddleware(s.steve)
 
 	s.startHooks = []StartHook{
 		master.Setup,
@@ -247,6 +261,14 @@ func (s *HarvesterServer) start(options config.Options) error {
 	}
 
 	return nil
+}
+
+func (s *HarvesterServer) startAggregation(options config.Options) {
+	aggregation.Watch(s.Context,
+		s.Scaled().Management.CoreFactory.Core().V1().Secret(),
+		options.Namespace,
+		"harvester-aggregation",
+		s.steve)
 }
 
 type StartHook func(context.Context, *steveserver.Server, *steveserver.Controllers, config.Options) error

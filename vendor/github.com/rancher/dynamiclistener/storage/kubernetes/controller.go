@@ -126,7 +126,7 @@ func (s *storage) targetSecret() (*v1.Secret, error) {
 }
 
 func (s *storage) saveInK8s(secret *v1.Secret) (*v1.Secret, error) {
-	if s.secrets == nil {
+	if s.secrets == nil || s.tls == nil{
 		return secret, nil
 	}
 

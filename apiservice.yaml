@@ -4,6 +4,6 @@ metadata:
   name: harvester
 spec:
   secretName: harvester-aggregation
-  secretNamespace: {{.Release.Namespace}}
+  secretNamespace: harvester-system
   pathPrefixes:
-    - /harvester
+    - /v1/harvester
