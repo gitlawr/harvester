@@ -6572,8 +6572,7 @@
       "description": "DataVolumeSpec defines the DataVolume type specification",
       "type": "object",
       "required": [
-        "source",
-        "pvc"
+        "source"
       ],
       "properties": {
         "checkpoints": {
@@ -6595,6 +6594,10 @@
           "description": "Preallocation controls whether storage for DataVolumes should be allocated in advance.",
           "type": "boolean"
         },
+        "priorityClassName": {
+          "description": "PriorityClassName for Importer, Cloner and Uploader pod",
+          "type": "string"
+        },
         "pvc": {
           "description": "PVC is the PVC specification",
           "$ref": "#/definitions/k8s.io.v1.PersistentVolumeClaimSpec"
@@ -6602,6 +6605,47 @@
         "source": {
           "description": "Source is the src of the data for the requested DataVolume",
           "$ref": "#/definitions/cdi.kubevirt.io.v1alpha1.DataVolumeSource"
+        },
+        "storage": {
+          "description": "Storage is the requested storage specification",
+          "$ref": "#/definitions/cdi.kubevirt.io.v1alpha1.StorageSpec"
+        }
+      }
+    },
+    "cdi.kubevirt.io.v1alpha1.StorageSpec": {
+      "description": "StorageSpec defines the Storage type specification",
+      "type": "object",
+      "properties": {
+        "accessModes": {
+          "description": "AccessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dataSource": {
+          "description": "This field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) * An existing custom resource that implements data population (Alpha) In order to use custom resource types that implement data population, the AnyVolumeDataSource feature gate must be enabled. If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source.",
+          "$ref": "#/definitions/k8s.io.v1.TypedLocalObjectReference"
+        },
+        "resources": {
+          "description": "Resources represents the minimum resources the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources",
+          "$ref": "#/definitions/k8s.io.v1.ResourceRequirements"
+        },
+        "selector": {
+          "description": "A label query over volumes to consider for binding.",
+          "$ref": "#/definitions/k8s.io.v1.LabelSelector"
+        },
+        "storageClassName": {
+          "description": "Name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1",
+          "type": "string"
+        },
+        "volumeMode": {
+          "description": "volumeMode defines what type of volume is required by the claim. Value of Filesystem is implied when not included in claim spec.",
+          "type": "string"
+        },
+        "volumeName": {
+          "description": "VolumeName is the binding reference to the PersistentVolume backing this claim.",
+          "type": "string"
         }
       }
     },
@@ -6808,6 +6852,28 @@
         }
       }
     },
+    "cdi.kubevirt.io.v1beta1.DataVolumeSourceRef": {
+      "description": "DataVolumeSourceRef defines an indirect reference to the source of data for the DataVolume",
+      "type": "object",
+      "required": [
+        "kind",
+        "name"
+      ],
+      "properties": {
+        "kind": {
+          "description": "The kind of the source reference, currently only \"DataSource\" is supported",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the source reference",
+          "type": "string"
+        },
+        "namespace": {
+          "description": "The namespace of the source reference, defaults to the DataVolume namespace",
+          "type": "string"
+        }
+      }
+    },
     "cdi.kubevirt.io.v1beta1.DataVolumeSourceRegistry": {
       "description": "DataVolumeSourceRegistry provides the parameters to create a Data Volume from an registry source",
       "type": "object",
@@ -6883,10 +6949,6 @@
     "cdi.kubevirt.io.v1beta1.DataVolumeSpec": {
       "description": "DataVolumeSpec defines the DataVolume type specification",
       "type": "object",
-      "required": [
-        "source",
-        "pvc"
-      ],
       "properties": {
         "checkpoints": {
           "description": "Checkpoints is a list of DataVolumeCheckpoints, representing stages in a multistage import.",
@@ -6907,6 +6969,10 @@
           "description": "Preallocation controls whether storage for DataVolumes should be allocated in advance.",
           "type": "boolean"
         },
+        "priorityClassName": {
+          "description": "PriorityClassName for Importer, Cloner and Uploader pod",
+          "type": "string"
+        },
         "pvc": {
           "description": "PVC is the PVC specification",
           "$ref": "#/definitions/k8s.io.v1.PersistentVolumeClaimSpec"
@@ -6914,6 +6980,14 @@
         "source": {
           "description": "Source is the src of the data for the requested DataVolume",
           "$ref": "#/definitions/cdi.kubevirt.io.v1beta1.DataVolumeSource"
+        },
+        "sourceRef": {
+          "description": "SourceRef is an indirect reference to the source of data for the requested DataVolume",
+          "$ref": "#/definitions/cdi.kubevirt.io.v1beta1.DataVolumeSourceRef"
+        },
+        "storage": {
+          "description": "Storage is the requested storage specification",
+          "$ref": "#/definitions/cdi.kubevirt.io.v1beta1.StorageSpec"
         }
       }
     },
@@ -6938,6 +7012,43 @@
           "description": "RestartCount is the number of times the pod populating the DataVolume has restarted",
           "type": "integer",
           "format": "int32"
+        }
+      }
+    },
+    "cdi.kubevirt.io.v1beta1.StorageSpec": {
+      "description": "StorageSpec defines the Storage type specification",
+      "type": "object",
+      "properties": {
+        "accessModes": {
+          "description": "AccessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dataSource": {
+          "description": "This field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) * An existing custom resource that implements data population (Alpha) In order to use custom resource types that implement data population, the AnyVolumeDataSource feature gate must be enabled. If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source.",
+          "$ref": "#/definitions/k8s.io.v1.TypedLocalObjectReference"
+        },
+        "resources": {
+          "description": "Resources represents the minimum resources the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources",
+          "$ref": "#/definitions/k8s.io.v1.ResourceRequirements"
+        },
+        "selector": {
+          "description": "A label query over volumes to consider for binding.",
+          "$ref": "#/definitions/k8s.io.v1.LabelSelector"
+        },
+        "storageClassName": {
+          "description": "Name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1",
+          "type": "string"
+        },
+        "volumeMode": {
+          "description": "volumeMode defines what type of volume is required by the claim. Value of Filesystem is implied when not included in claim spec.",
+          "type": "string"
+        },
+        "volumeName": {
+          "description": "VolumeName is the binding reference to the PersistentVolume backing this claim.",
+          "type": "string"
         }
       }
     },
@@ -7948,6 +8059,19 @@
         }
       }
     },
+    "k8s.io.v1.ExecAction": {
+      "description": "ExecAction describes a \"run in container\" action.",
+      "type": "object",
+      "properties": {
+        "command": {
+          "description": "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "k8s.io.v1.FieldsV1": {
       "description": "FieldsV1 stores a set of fields in a data structure like a Trie, in JSON format.\n\nEach key is either a '.' representing the field itself, and will always map to an empty set, or a string representing a sub-field or item. The string will follow one of these four formats: 'f:\u003cname\u003e', where \u003cname\u003e is the name of a field in a struct, or key in a map 'v:\u003cvalue\u003e', where \u003cvalue\u003e is the exact json formatted value of a list item 'i:\u003cindex\u003e', where \u003cindex\u003e is position of a item in a list 'k:\u003ckeys\u003e', where \u003ckeys\u003e is a map of  a list item's key fields to their unique values If a key maps to an empty Fields value, the field that key represents is part of the set.\n\nThe exact format is defined in sigs.k8s.io/structured-merge-diff",
       "type": "object"
@@ -8822,6 +8946,18 @@
         }
       }
     },
+    "kubevirt.io.v1.BlockSize": {
+      "description": "BlockSize provides the option to change the block size presented to the VM for a disk. Only one of its members may be specified.",
+      "type": "object",
+      "properties": {
+        "custom": {
+          "$ref": "#/definitions/kubevirt.io.v1.CustomBlockSize"
+        },
+        "matchVolume": {
+          "$ref": "#/definitions/kubevirt.io.v1.FeatureState"
+        }
+      }
+    },
     "kubevirt.io.v1.Bootloader": {
       "description": "Represents the firmware blob used to assist in the domain creation process. Used for setting the QEMU BIOS file path for the libvirt domain.",
       "type": "object",
@@ -9066,6 +9202,24 @@
         }
       }
     },
+    "kubevirt.io.v1.CustomBlockSize": {
+      "description": "CustomBlockSize represents the desired logical and physical block size for a VM disk.",
+      "type": "object",
+      "required": [
+        "logical",
+        "physical"
+      ],
+      "properties": {
+        "logical": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "physical": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "kubevirt.io.v1.DHCPOptions": {
       "description": "Extra DHCP options to use in the interface.",
       "type": "object",
@@ -9253,6 +9407,10 @@
         "name"
       ],
       "properties": {
+        "blockSize": {
+          "description": "If specified, the virtual disk will be presented with the given block sizes.",
+          "$ref": "#/definitions/kubevirt.io.v1.BlockSize"
+        },
         "bootOrder": {
           "description": "BootOrder is an integer value \u003e 0, used to determine ordering of boot devices. Lower values take precedence. Each disk or interface that has a boot order must have a unique value. Disks without a boot order are not tried if a disk with a boot order exists.",
           "type": "integer",
@@ -9381,6 +9539,10 @@
           "type": "string"
         }
       }
+    },
+    "kubevirt.io.v1.DownwardMetricsVolumeSource": {
+      "description": "DownwardMetricsVolumeSource adds a very small disk to VMIs which contains a limited view of host and guest metrics. The disk content is compatible with vhostmd (https://github.com/vhostmd/vhostmd) and vm-dump-metrics.",
+      "type": "object"
     },
     "kubevirt.io.v1.EFI": {
       "description": "If set, EFI will be used instead of BIOS.",
@@ -9590,6 +9752,10 @@
         "bootloader": {
           "description": "Settings to control the bootloader that is used.",
           "$ref": "#/definitions/kubevirt.io.v1.Bootloader"
+        },
+        "kernelBoot": {
+          "description": "Settings to set the kernel for booting.",
+          "$ref": "#/definitions/kubevirt.io.v1.KernelBoot"
         },
         "serial": {
           "description": "The system-serial-number in SMBIOS",
@@ -9846,6 +10012,49 @@
         }
       }
     },
+    "kubevirt.io.v1.KernelBoot": {
+      "description": "Represents the firmware blob used to assist in the kernel boot process. Used for setting the kernel, initrd and command line arguments",
+      "type": "object",
+      "properties": {
+        "container": {
+          "description": "Container defines the container that containes kernel artifacts",
+          "$ref": "#/definitions/kubevirt.io.v1.KernelBootContainer"
+        },
+        "kernelArgs": {
+          "description": "Arguments to be passed to the kernel at boot time",
+          "type": "string"
+        }
+      }
+    },
+    "kubevirt.io.v1.KernelBootContainer": {
+      "description": "If set, the VM will be booted from the defined kernel / initrd.",
+      "type": "object",
+      "required": [
+        "image"
+      ],
+      "properties": {
+        "image": {
+          "description": "Image that container initrd / kernel files.",
+          "type": "string"
+        },
+        "imagePullPolicy": {
+          "description": "Image pull policy. One of Always, Never, IfNotPresent. Defaults to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot be updated. More info: https://kubernetes.io/docs/concepts/containers/images#updating-images",
+          "type": "string"
+        },
+        "imagePullSecret": {
+          "description": "ImagePullSecret is the name of the Docker registry secret required to pull the image. The secret must already exist.",
+          "type": "string"
+        },
+        "initrdPath": {
+          "description": "the fully-qualified path to the ramdisk image in the host OS",
+          "type": "string"
+        },
+        "kernelPath": {
+          "description": "The fully-qualified path to the kernel image in the host OS",
+          "type": "string"
+        }
+      }
+    },
     "kubevirt.io.v1.LunTarget": {
       "type": "object",
       "properties": {
@@ -9861,9 +10070,6 @@
     },
     "kubevirt.io.v1.Machine": {
       "type": "object",
-      "required": [
-        "type"
-      ],
       "properties": {
         "type": {
           "description": "QEMU machine type is the actual chipset of the VirtualMachineInstance.",
@@ -9938,6 +10144,10 @@
       "description": "Represents the stock pod network interface.",
       "type": "object",
       "properties": {
+        "vmIPv6NetworkCIDR": {
+          "description": "IPv6 CIDR for the vm network. Defaults to fd10:0:2::/120 if not specified.",
+          "type": "string"
+        },
         "vmNetworkCIDR": {
           "description": "CIDR for vm network. Default 10.0.2.0/24 if not specified.",
           "type": "string"
@@ -9970,6 +10180,10 @@
       "description": "Probe describes a health check to be performed against a VirtualMachineInstance to determine whether it is alive or ready to receive traffic.",
       "type": "object",
       "properties": {
+        "exec": {
+          "description": "One and only one of the following should be specified. Exec specifies the action to take, it will be executed on the guest through the qemu-guest-agent. If the guest agent is not available, this probe will fail.",
+          "$ref": "#/definitions/k8s.io.v1.ExecAction"
+        },
         "failureThreshold": {
           "description": "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.",
           "type": "integer",
@@ -9999,7 +10213,7 @@
           "$ref": "#/definitions/k8s.io.v1.TCPSocketAction"
         },
         "timeoutSeconds": {
-          "description": "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes",
+          "description": "Number of seconds after which the probe times out. For exec probes the timeout fails the probe but does not terminate the command running on the guest. This means a blocking command can result in an increasing load on the guest. A small buffer will be added to the resulting workload exec probe to compensate for delays caused by the qemu guest exec mechanism. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes",
           "type": "integer",
           "format": "int32"
         }
@@ -10689,6 +10903,10 @@
           "description": "If specified, the VMI will be dispatched by specified scheduler. If not specified, the VMI will be dispatched by default scheduler.",
           "type": "string"
         },
+        "startStrategy": {
+          "description": "StartStrategy can be set to \"Paused\" if Virtual Machine should be started in paused state.",
+          "type": "string"
+        },
         "subdomain": {
           "description": "If specified, the fully qualified vmi hostname will be \"\u003chostname\u003e.\u003csubdomain\u003e.\u003cpod namespace\u003e.svc.\u003ccluster domain\u003e\". If not specified, the vmi will not have a domainname at all. The DNS entry will resolve to the vmi, no matter if the vmi itself can pick up a hostname.",
           "type": "string"
@@ -10734,6 +10952,10 @@
         },
         "evacuationNodeName": {
           "description": "EvacuationNodeName is used to track the eviction process of a VMI. It stores the name of the node that we want to evacuate. It is meant to be used by KubeVirt core components only and can't be set or modified by users.",
+          "type": "string"
+        },
+        "fsFreezeStatus": {
+          "description": "FSFreezeStatus is the state of the fs of the guest it can be either frozen or thawed",
           "type": "string"
         },
         "guestOSInfo": {
@@ -10891,6 +11113,10 @@
           "description": "Created indicates if the virtual machine is created in the cluster",
           "type": "boolean"
         },
+        "printableStatus": {
+          "description": "PrintableStatus is a human readable, high-level representation of the status of the virtual machine",
+          "type": "string"
+        },
         "ready": {
           "description": "Ready indicates if the virtual machine is running and ready",
           "type": "boolean"
@@ -10966,6 +11192,10 @@
         "downwardAPI": {
           "description": "DownwardAPI represents downward API about the pod that should populate this volume",
           "$ref": "#/definitions/kubevirt.io.v1.DownwardAPIVolumeSource"
+        },
+        "downwardMetrics": {
+          "description": "DownwardMetrics adds a very small disk to VMIs which contains a limited view of host and guest metrics. The disk content is compatible with vhostmd (https://github.com/vhostmd/vhostmd) and vm-dump-metrics.",
+          "$ref": "#/definitions/kubevirt.io.v1.DownwardMetricsVolumeSource"
         },
         "emptyDisk": {
           "description": "EmptyDisk represents a temporary disk which shares the vmis lifecycle. More info: https://kubevirt.gitbooks.io/user-guide/disks-and-volumes.html",
