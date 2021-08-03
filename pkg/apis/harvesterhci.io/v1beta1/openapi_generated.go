@@ -3281,7 +3281,7 @@ func schema_pkg_apis_harvesterhciio_v1beta1_VirtualMachineTemplateVersionSpec(re
 					},
 					"vm": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kubevirt.io/client-go/api/v1.VirtualMachineSpec"),
+							Ref: ref("kubevirt.io/client-go/api/v1.VirtualMachine"),
 						},
 					},
 				},
@@ -3289,7 +3289,7 @@ func schema_pkg_apis_harvesterhciio_v1beta1_VirtualMachineTemplateVersionSpec(re
 			},
 		},
 		Dependencies: []string{
-			"kubevirt.io/client-go/api/v1.VirtualMachineSpec"},
+			"kubevirt.io/client-go/api/v1.VirtualMachine"},
 	}
 }
 
