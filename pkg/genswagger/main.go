@@ -26,7 +26,7 @@ var kindToTagMappings = map[string]string{
 	"VirtualMachineInstance":          "Virtual Machines",
 	"VirtualMachineTemplate":          "Virtual Machine Templates",
 	"VirtualMachineTemplateVersion":   "Virtual Machine Templates",
-	"DataVolume":                      "Volumes",
+	"PersistentVolumeClaim":           "Volumes",
 	"VirtualMachineImage":             "Images",
 	"VirtualMachineBackup":            "Backups",
 	"VirtualMachineRestore":           "Restores",
