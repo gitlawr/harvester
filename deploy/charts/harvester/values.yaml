@@ -9,11 +9,6 @@
 ##
 tags:
 
-  ## Specify to enable both CDI operator and CDI sub-charts,
-  ## defaults to "true".
-  ##
-  cdi: true
-
   ## Specify to enable both KubeVirt operator and KubeVirt sub-charts,
   ## defaults to "true".
   ##
@@ -89,35 +84,6 @@ kubevirt:
       ## defaults to discover automatically, "pseries*" if arch is ppc64le, otherwise "q35, pc-g35*, pc, pc-i440fx*".
       ##
       emulatedMachines: ["q35","pc-q35*","pc","pc-i440fx*"]
-
-## Specify the parameters to override the sub-chart.
-##
-cdi-operator:
-  containers:
-    operator:
-      image:
-        repository: registry.suse.com/harvester-beta/cdi-operator
-        tag: &cdiVersion 1.30.0
-    controller:
-      image:
-        repository: registry.suse.com/harvester-beta/cdi-controller
-        tag: *cdiVersion
-    importer:
-      image:
-        repository: registry.suse.com/harvester-beta/cdi-importer
-        tag: *cdiVersion
-    apiserver:
-      image:
-        repository: registry.suse.com/harvester-beta/cdi-apiserver
-        tag: *cdiVersion
-    uploadproxy:
-      image:
-        repository: registry.suse.com/harvester-beta/cdi-uploadproxy
-        tag: *cdiVersion
-
-## Specify the parameters to override the sub-chart.
-##
-cdi: {}
 
 ###########################################################################
 ###########################################################################
