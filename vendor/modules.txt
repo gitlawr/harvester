@@ -1686,10 +1686,8 @@ kubevirt.io/client-go/apis/snapshot
 kubevirt.io/client-go/apis/snapshot/v1alpha1
 kubevirt.io/client-go/precond
 # kubevirt.io/containerized-data-importer v1.31.0 => github.com/rancher/kubevirt-containerized-data-importer v1.26.1-0.20210303063201-9e7a78643487
-## explicit
 kubevirt.io/containerized-data-importer/pkg/apis/core
 kubevirt.io/containerized-data-importer/pkg/apis/core/v1alpha1
-kubevirt.io/containerized-data-importer/pkg/apis/core/v1beta1
 # kubevirt.io/controller-lifecycle-operator-sdk v0.1.2
 kubevirt.io/controller-lifecycle-operator-sdk/pkg/sdk/api
 # kubevirt.io/kubevirt v0.40.0

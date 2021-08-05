@@ -98,7 +98,6 @@ require (
 	k8s.io/kubernetes v1.21.0
 	k8s.io/utils v0.0.0-20210305010621-2afb4311ab10
 	kubevirt.io/client-go v0.40.0
-	kubevirt.io/containerized-data-importer v1.31.0
 	kubevirt.io/kubevirt v0.40.0
 	sigs.k8s.io/kind v0.11.1
 	sigs.k8s.io/yaml v1.2.0
