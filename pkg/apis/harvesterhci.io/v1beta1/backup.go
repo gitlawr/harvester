@@ -25,10 +25,10 @@ type DeletionPolicy string
 
 const (
 	// VirtualMachineRestoreDelete is the default and causes the
-	// VirtualMachineRestore deleted resources like dataVolume or PVC to be deleted
+	// VirtualMachineRestore deleted resources like PVC to be deleted
 	VirtualMachineRestoreDelete DeletionPolicy = "delete"
 
-	// VirtualMachineRestoreRetain causes the VirtualMachineRestore deleted resources like dataVolume or PVC to be retained
+	// VirtualMachineRestoreRetain causes the VirtualMachineRestore deleted resources like PVC to be retained
 	VirtualMachineRestoreRetain DeletionPolicy = "retain"
 )
 
@@ -221,7 +221,7 @@ type VirtualMachineRestoreStatus struct {
 	RestoreTime *metav1.Time `json:"restoreTime,omitempty"`
 
 	// +optional
-	DeletedDataVolumes []string `json:"deletedDataVolumes,omitempty"`
+	DeletedVolumes []string `json:"deletedVolumes,omitempty"`
 
 	// +optional
 	Complete *bool `json:"complete,omitempty"`

@@ -85,7 +85,6 @@ func createConfig() *common.Config {
 			name = strings.ReplaceAll(name, "k8s.io/api/core", "k8s.io")
 			name = strings.ReplaceAll(name, "k8s.io/apimachinery/pkg/apis/meta", "k8s.io")
 			name = strings.ReplaceAll(name, "kubevirt.io/client-go/api", "kubevirt.io")
-			name = strings.ReplaceAll(name, "kubevirt.io/containerized-data-importer/pkg/apis/core", "cdi.kubevirt.io")
 			name = strings.ReplaceAll(name, "/", ".")
 
 			return name, nil

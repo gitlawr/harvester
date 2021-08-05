@@ -1173,8 +1173,8 @@ func (in *VirtualMachineRestoreStatus) DeepCopyInto(out *VirtualMachineRestoreSt
 		in, out := &in.RestoreTime, &out.RestoreTime
 		*out = (*in).DeepCopy()
 	}
-	if in.DeletedDataVolumes != nil {
-		in, out := &in.DeletedDataVolumes, &out.DeletedDataVolumes
+	if in.DeletedVolumes != nil {
+		in, out := &in.DeletedVolumes, &out.DeletedVolumes
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}

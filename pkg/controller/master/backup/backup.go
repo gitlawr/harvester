@@ -302,8 +302,6 @@ func volumeToPvcMappings(volumes []kv1.Volume) map[string]string {
 
 		if volume.PersistentVolumeClaim != nil {
 			pvcName = volume.PersistentVolumeClaim.ClaimName
-		} else if volume.DataVolume != nil {
-			pvcName = volume.DataVolume.Name
 		} else {
 			continue
 		}
