@@ -26,21 +26,7 @@ const (
 var (
 	initConfigDir sync.Once
 	configDir     string
-	homeDir       string
 )
-
-// resetHomeDir is used in testing to resets the "homeDir" package variable to
-// force re-lookup of the home directory between tests.
-func resetHomeDir() {
-	homeDir = ""
-}
-
-func getHomeDir() string {
-	if homeDir == "" {
-		homeDir = homedir.Get()
-	}
-	return homeDir
-}
 
 func setConfigDir() {
 	if configDir != "" {
@@ -48,7 +34,7 @@ func setConfigDir() {
 	}
 	configDir = os.Getenv("DOCKER_CONFIG")
 	if configDir == "" {
-		configDir = filepath.Join(getHomeDir(), configFileDir)
+		configDir = filepath.Join(homedir.Get(), configFileDir)
 	}
 }
 
@@ -123,7 +109,11 @@ func Load(configDir string) (*configfile.ConfigFile, error) {
 	}
 
 	// Can't find latest config file so check for the old one
-	filename = filepath.Join(getHomeDir(), oldConfigfile)
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return configFile, errors.Wrap(err, oldConfigfile)
+	}
+	filename = filepath.Join(home, oldConfigfile)
 	if file, err := os.Open(filename); err == nil {
 		defer file.Close()
 		if err := configFile.LegacyLoadFromReader(file); err != nil {

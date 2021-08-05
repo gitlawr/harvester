@@ -30,19 +30,14 @@ type Interface interface {
 	// Create creates one or more resources.
 	Create(resources ResourceList) (*Result, error)
 
-	// Wait waits up to the given timeout for the specified resources to be ready.
 	Wait(resources ResourceList, timeout time.Duration) error
 
-	// WaitWithJobs wait up to the given timeout for the specified resources to be ready, including jobs.
 	WaitWithJobs(resources ResourceList, timeout time.Duration) error
 
 	// Delete destroys one or more resources.
 	Delete(resources ResourceList) (*Result, []error)
 
-	// WatchUntilReady watches the resources given and waits until it is ready.
-	//
-	// This method is mainly for hook implementations. It watches for a resource to
-	// hit a particular milestone. The milestone depends on the Kind.
+	// Watch the resource in reader until it is "ready". This method
 	//
 	// For Jobs, "ready" means the Job ran to completion (exited without error).
 	// For Pods, "ready" means the Pod phase is marked "succeeded".
@@ -54,9 +49,9 @@ type Interface interface {
 	// if it doesn't exist.
 	Update(original, target ResourceList, force bool) (*Result, error)
 
-	// Build creates a resource list from a Reader.
+	// Build creates a resource list from a Reader
 	//
-	// Reader must contain a YAML stream (one or more YAML documents separated
+	// reader must contain a YAML stream (one or more YAML documents separated
 	// by "\n---\n")
 	//
 	// Validates against OpenAPI schema if validate is true.
@@ -66,7 +61,7 @@ type Interface interface {
 	// and returns said phase (PodSucceeded or PodFailed qualify).
 	WaitAndGetCompletedPodPhase(name string, timeout time.Duration) (v1.PodPhase, error)
 
-	// IsReachable checks whether the client is able to connect to the cluster.
+	// isReachable checks whether the client is able to connect to the cluster
 	IsReachable() error
 }
 

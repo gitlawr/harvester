@@ -64,9 +64,7 @@ func (pw *PassthroughWriter) Write(p []byte) (n int, err error) {
 }
 
 func (pw *PassthroughWriter) Close() error {
-	if pw.pipew != nil {
-		pw.pipew.Close()
-	}
+	pw.pipew.Close()
 	pw.writer.Close()
 	return nil
 }
@@ -84,13 +82,9 @@ func (pw *PassthroughWriter) Digest() digest.Digest {
 // Commit always closes the writer, even on error.
 // ErrAlreadyExists aborts the writer.
 func (pw *PassthroughWriter) Commit(ctx context.Context, size int64, expected digest.Digest, opts ...content.Opt) error {
-	if pw.pipew != nil {
-		pw.pipew.Close()
-	}
+	pw.pipew.Close()
 	err := <-pw.done
-	if pw.reader != nil {
-		pw.reader.Close()
-	}
+	pw.reader.Close()
 	if err != nil && err != io.EOF {
 		return err
 	}
@@ -158,9 +152,10 @@ type PassthroughMultiWriter struct {
 	done      chan error
 	startedAt time.Time
 	updatedAt time.Time
+	ref       string
 }
 
-func NewPassthroughMultiWriter(writers func(name string) (content.Writer, error), f func(r io.Reader, getwriter func(name string) io.Writer, done chan<- error), opts ...WriterOpt) content.Writer {
+func NewPassthroughMultiWriter(writers []content.Writer, f func(r io.Reader, w []io.Writer, done chan<- error), opts ...WriterOpt) content.Writer {
 	// process opts for default
 	wOpts := DefaultWriterOpts()
 	for _, opt := range opts {
@@ -169,38 +164,36 @@ func NewPassthroughMultiWriter(writers func(name string) (content.Writer, error)
 		}
 	}
 
+	var pws []*PassthroughWriter
 	r, w := io.Pipe()
-
-	pmw := &PassthroughMultiWriter{
-		startedAt: time.Now(),
-		updatedAt: time.Now(),
-		done:      make(chan error, 1),
-		digester: digest.Canonical.Digester(),
-		hash:     wOpts.InputHash,
-		pipew: w,
-		reader: r,
-	}
-
-	// get our output writers
-	getwriter := func(name string) io.Writer {
-		writer, err := writers(name)
-		if err != nil || writer == nil {
-			return nil
-		}
-		pw := &PassthroughWriter{
+	for _, writer := range writers {
+		pws = append(pws, &PassthroughWriter{
 			writer:   writer,
+			pipew:    w,
 			digester: digest.Canonical.Digester(),
 			underlyingWriter: &underlyingWriter{
 				writer:   writer,
 				digester: digest.Canonical.Digester(),
 				hash:     wOpts.OutputHash,
 			},
+			reader: r,
+			hash:   wOpts.InputHash,
 			done:   make(chan error, 1),
-		}
-		pmw.writers = append(pmw.writers, pw)
-		return pw.underlyingWriter
+		})
 	}
-	go f(r, getwriter, pmw.done)
+
+	pmw := &PassthroughMultiWriter{
+		writers:   pws,
+		startedAt: time.Now(),
+		updatedAt: time.Now(),
+		done:      make(chan error, 1),
+	}
+	// get our output writers
+	var uws []io.Writer
+	for _, uw := range pws {
+		uws = append(uws, uw.underlyingWriter)
+	}
+	go f(r, uws, pmw.done)
 	return pmw
 }
 
@@ -237,9 +230,7 @@ func (pmw *PassthroughMultiWriter) Digest() digest.Digest {
 func (pmw *PassthroughMultiWriter) Commit(ctx context.Context, size int64, expected digest.Digest, opts ...content.Opt) error {
 	pmw.pipew.Close()
 	err := <-pmw.done
-	if pmw.reader != nil {
-		pmw.reader.Close()
-	}
+	pmw.reader.Close()
 	if err != nil && err != io.EOF {
 		return err
 	}

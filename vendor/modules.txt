@@ -188,7 +188,7 @@ github.com/crewjam/saml/xmlenc
 github.com/cyphar/filepath-securejoin
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
-# github.com/deislabs/oras v0.11.1
+# github.com/deislabs/oras v0.10.0
 github.com/deislabs/oras/pkg/artifact
 github.com/deislabs/oras/pkg/auth
 github.com/deislabs/oras/pkg/auth/docker
@@ -198,7 +198,7 @@ github.com/deislabs/oras/pkg/oras
 # github.com/dgrijalva/jwt-go v3.2.0+incompatible => github.com/dgrijalva/jwt-go v3.2.1-0.20200107013213-dc14462fd587+incompatible
 ## explicit
 github.com/dgrijalva/jwt-go
-# github.com/docker/cli v20.10.5+incompatible
+# github.com/docker/cli v20.10.3+incompatible
 github.com/docker/cli/cli/config
 github.com/docker/cli/cli/config/configfile
 github.com/docker/cli/cli/config/credentials
@@ -371,7 +371,7 @@ github.com/iancoleman/strcase
 github.com/imdario/mergo
 # github.com/inconshreveable/mousetrap v1.0.0
 github.com/inconshreveable/mousetrap
-# github.com/jmoiron/sqlx v1.3.1
+# github.com/jmoiron/sqlx v1.2.0
 github.com/jmoiron/sqlx
 github.com/jmoiron/sqlx/reflectx
 # github.com/jonboulle/clockwork v0.2.1
@@ -401,7 +401,7 @@ github.com/kubernetes/dashboard/src/app/backend/sync/api
 github.com/lann/builder
 # github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0
 github.com/lann/ps
-# github.com/lib/pq v1.10.0
+# github.com/lib/pq v1.9.0
 github.com/lib/pq
 github.com/lib/pq/oid
 github.com/lib/pq/scram
@@ -439,13 +439,13 @@ github.com/matttproud/golang_protobuf_extensions/pbutil
 # github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2
 ## explicit
 github.com/mcuadros/go-version
-# github.com/mitchellh/copystructure v1.1.1
+# github.com/mitchellh/copystructure v1.0.0
 github.com/mitchellh/copystructure
 # github.com/mitchellh/go-wordwrap v1.0.0
 github.com/mitchellh/go-wordwrap
 # github.com/mitchellh/mapstructure v1.4.1
 github.com/mitchellh/mapstructure
-# github.com/mitchellh/reflectwalk v1.0.1
+# github.com/mitchellh/reflectwalk v1.0.0
 github.com/mitchellh/reflectwalk
 # github.com/moby/locker v1.0.1
 github.com/moby/locker
@@ -1142,7 +1142,7 @@ gopkg.in/tomb.v1
 gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 gopkg.in/yaml.v3
-# helm.sh/helm/v3 v3.6.3
+# helm.sh/helm/v3 v3.5.4 => github.com/rancher/helm/v3 v3.5.4-rancher.1
 ## explicit
 helm.sh/helm/v3/internal/experimental/registry
 helm.sh/helm/v3/internal/fileutil
@@ -1879,6 +1879,7 @@ sigs.k8s.io/yaml
 # github.com/operator-framework/operator-lifecycle-manager => github.com/operator-framework/operator-lifecycle-manager v0.0.0-20190128024246-5eb7ae5bdb7a
 # github.com/rancher/rancher/pkg/apis => github.com/rancher/rancher/pkg/apis v0.0.0-20210702001641-82b212ddba18
 # github.com/rancher/rancher/pkg/client => github.com/rancher/rancher/pkg/client v0.0.0-20210702001641-82b212ddba18
+# helm.sh/helm/v3 => github.com/rancher/helm/v3 v3.5.4-rancher.1
 # k8s.io/api => k8s.io/api v0.21.2
 # k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.21.2
 # k8s.io/apimachinery => k8s.io/apimachinery v0.21.2

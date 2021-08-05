@@ -124,17 +124,11 @@ func (d DecompressStore) Writer(ctx context.Context, opts ...ctrcontent.WriterOp
 func checkCompression(mediaType string) (gzip, tar bool, mt string) {
 	mt = mediaType
 	gzipSuffix := "+gzip"
-	gzipAltSuffix := ".gzip"
 	tarSuffix := ".tar"
-	switch {
-	case strings.HasSuffix(mt, gzipSuffix):
+	if strings.HasSuffix(mt, gzipSuffix) {
 		mt = mt[:len(mt)-len(gzipSuffix)]
 		gzip = true
-	case strings.HasSuffix(mt, gzipAltSuffix):
-		mt = mt[:len(mt)-len(gzipAltSuffix)]
-		gzip = true
 	}
-
 	if strings.HasSuffix(mt, tarSuffix) {
 		mt = mt[:len(mt)-len(tarSuffix)]
 		tar = true
