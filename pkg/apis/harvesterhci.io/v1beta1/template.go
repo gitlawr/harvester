@@ -74,7 +74,7 @@ type VirtualMachineTemplateVersionSpec struct {
 	KeyPairIDs []string `json:"keyPairIds,omitempty"`
 
 	// +optional
-	VM kv1.VirtualMachineSpec `json:"vm,omitempty"`
+	VM kv1.VirtualMachine `json:"vm,omitempty"`
 }
 
 type VirtualMachineTemplateVersionStatus struct {
