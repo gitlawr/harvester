@@ -6379,232 +6379,6 @@
     }
   },
   "definitions": {
-    "cdi.kubevirt.io.v1alpha1.DataVolumeBlankImage": {
-      "description": "DataVolumeBlankImage provides the parameters to create a new raw blank image for the PVC",
-      "type": "object"
-    },
-    "cdi.kubevirt.io.v1alpha1.DataVolumeCheckpoint": {
-      "description": "DataVolumeCheckpoint defines a stage in a warm migration.",
-      "type": "object",
-      "required": [
-        "previous",
-        "current"
-      ],
-      "properties": {
-        "current": {
-          "description": "Current is the identifier of the snapshot created for this checkpoint.",
-          "type": "string"
-        },
-        "previous": {
-          "description": "Previous is the identifier of the snapshot from the previous checkpoint.",
-          "type": "string"
-        }
-      }
-    },
-    "cdi.kubevirt.io.v1alpha1.DataVolumeSource": {
-      "description": "DataVolumeSource represents the source for our Data Volume, this can be HTTP, Imageio, S3, Registry or an existing PVC",
-      "type": "object",
-      "properties": {
-        "blank": {
-          "$ref": "#/definitions/cdi.kubevirt.io.v1alpha1.DataVolumeBlankImage"
-        },
-        "http": {
-          "$ref": "#/definitions/cdi.kubevirt.io.v1alpha1.DataVolumeSourceHTTP"
-        },
-        "imageio": {
-          "$ref": "#/definitions/cdi.kubevirt.io.v1alpha1.DataVolumeSourceImageIO"
-        },
-        "pvc": {
-          "$ref": "#/definitions/cdi.kubevirt.io.v1alpha1.DataVolumeSourcePVC"
-        },
-        "registry": {
-          "$ref": "#/definitions/cdi.kubevirt.io.v1alpha1.DataVolumeSourceRegistry"
-        },
-        "s3": {
-          "$ref": "#/definitions/cdi.kubevirt.io.v1alpha1.DataVolumeSourceS3"
-        },
-        "upload": {
-          "$ref": "#/definitions/cdi.kubevirt.io.v1alpha1.DataVolumeSourceUpload"
-        },
-        "vddk": {
-          "$ref": "#/definitions/cdi.kubevirt.io.v1alpha1.DataVolumeSourceVDDK"
-        }
-      }
-    },
-    "cdi.kubevirt.io.v1alpha1.DataVolumeSourceHTTP": {
-      "description": "DataVolumeSourceHTTP can be either an http or https endpoint, with an optional basic auth user name and password, and an optional configmap containing additional CAs",
-      "type": "object",
-      "required": [
-        "url"
-      ],
-      "properties": {
-        "certConfigMap": {
-          "description": "CertConfigMap is a configmap reference, containing a Certificate Authority(CA) public key, and a base64 encoded pem certificate",
-          "type": "string"
-        },
-        "secretRef": {
-          "description": "SecretRef A Secret reference, the secret should contain accessKeyId (user name) base64 encoded, and secretKey (password) also base64 encoded",
-          "type": "string"
-        },
-        "url": {
-          "description": "URL is the URL of the http(s) endpoint",
-          "type": "string"
-        }
-      }
-    },
-    "cdi.kubevirt.io.v1alpha1.DataVolumeSourceImageIO": {
-      "description": "DataVolumeSourceImageIO provides the parameters to create a Data Volume from an imageio source",
-      "type": "object",
-      "required": [
-        "url",
-        "diskId"
-      ],
-      "properties": {
-        "certConfigMap": {
-          "description": "CertConfigMap provides a reference to the CA cert",
-          "type": "string"
-        },
-        "diskId": {
-          "description": "DiskID provides id of a disk to be imported",
-          "type": "string"
-        },
-        "secretRef": {
-          "description": "SecretRef provides the secret reference needed to access the ovirt-engine",
-          "type": "string"
-        },
-        "url": {
-          "description": "URL is the URL of the ovirt-engine",
-          "type": "string"
-        }
-      }
-    },
-    "cdi.kubevirt.io.v1alpha1.DataVolumeSourcePVC": {
-      "description": "DataVolumeSourcePVC provides the parameters to create a Data Volume from an existing PVC",
-      "type": "object",
-      "required": [
-        "namespace",
-        "name"
-      ],
-      "properties": {
-        "name": {
-          "description": "The name of the source PVC",
-          "type": "string"
-        },
-        "namespace": {
-          "description": "The namespace of the source PVC",
-          "type": "string"
-        }
-      }
-    },
-    "cdi.kubevirt.io.v1alpha1.DataVolumeSourceRegistry": {
-      "description": "DataVolumeSourceRegistry provides the parameters to create a Data Volume from an registry source",
-      "type": "object",
-      "required": [
-        "url"
-      ],
-      "properties": {
-        "certConfigMap": {
-          "description": "CertConfigMap provides a reference to the Registry certs",
-          "type": "string"
-        },
-        "secretRef": {
-          "description": "SecretRef provides the secret reference needed to access the Registry source",
-          "type": "string"
-        },
-        "url": {
-          "description": "URL is the url of the Docker registry source",
-          "type": "string"
-        }
-      }
-    },
-    "cdi.kubevirt.io.v1alpha1.DataVolumeSourceS3": {
-      "description": "DataVolumeSourceS3 provides the parameters to create a Data Volume from an S3 source",
-      "type": "object",
-      "required": [
-        "url"
-      ],
-      "properties": {
-        "certConfigMap": {
-          "description": "CertConfigMap is a configmap reference, containing a Certificate Authority(CA) public key, and a base64 encoded pem certificate",
-          "type": "string"
-        },
-        "secretRef": {
-          "description": "SecretRef provides the secret reference needed to access the S3 source",
-          "type": "string"
-        },
-        "url": {
-          "description": "URL is the url of the S3 source",
-          "type": "string"
-        }
-      }
-    },
-    "cdi.kubevirt.io.v1alpha1.DataVolumeSourceUpload": {
-      "description": "DataVolumeSourceUpload provides the parameters to create a Data Volume by uploading the source",
-      "type": "object"
-    },
-    "cdi.kubevirt.io.v1alpha1.DataVolumeSourceVDDK": {
-      "description": "DataVolumeSourceVDDK provides the parameters to create a Data Volume from a Vmware source",
-      "type": "object",
-      "properties": {
-        "backingFile": {
-          "description": "BackingFile is the path to the virtual hard disk to migrate from vCenter/ESXi",
-          "type": "string"
-        },
-        "secretRef": {
-          "description": "SecretRef provides a reference to a secret containing the username and password needed to access the vCenter or ESXi host",
-          "type": "string"
-        },
-        "thumbprint": {
-          "description": "Thumbprint is the certificate thumbprint of the vCenter or ESXi host",
-          "type": "string"
-        },
-        "url": {
-          "description": "URL is the URL of the vCenter or ESXi host with the VM to migrate",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "UUID is the UUID of the virtual machine that the backing file is attached to in vCenter/ESXi",
-          "type": "string"
-        }
-      }
-    },
-    "cdi.kubevirt.io.v1alpha1.DataVolumeSpec": {
-      "description": "DataVolumeSpec defines the DataVolume type specification",
-      "type": "object",
-      "required": [
-        "source",
-        "pvc"
-      ],
-      "properties": {
-        "checkpoints": {
-          "description": "Checkpoints is a list of DataVolumeCheckpoints, representing stages in a multistage import.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/cdi.kubevirt.io.v1alpha1.DataVolumeCheckpoint"
-          }
-        },
-        "contentType": {
-          "description": "DataVolumeContentType options: \"kubevirt\", \"archive\"",
-          "type": "string"
-        },
-        "finalCheckpoint": {
-          "description": "FinalCheckpoint indicates whether the current DataVolumeCheckpoint is the final checkpoint.",
-          "type": "boolean"
-        },
-        "preallocation": {
-          "description": "Preallocation controls whether storage for DataVolumes should be allocated in advance.",
-          "type": "boolean"
-        },
-        "pvc": {
-          "description": "PVC is the PVC specification",
-          "$ref": "#/definitions/k8s.io.v1.PersistentVolumeClaimSpec"
-        },
-        "source": {
-          "description": "Source is the src of the data for the requested DataVolume",
-          "$ref": "#/definitions/cdi.kubevirt.io.v1alpha1.DataVolumeSource"
-        }
-      }
-    },
     "harvesterhci.io.v1beta1.Condition": {
       "type": "object",
       "required": [
@@ -8552,6 +8326,232 @@
         }
       }
     },
+    "kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeBlankImage": {
+      "description": "DataVolumeBlankImage provides the parameters to create a new raw blank image for the PVC",
+      "type": "object"
+    },
+    "kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeCheckpoint": {
+      "description": "DataVolumeCheckpoint defines a stage in a warm migration.",
+      "type": "object",
+      "required": [
+        "previous",
+        "current"
+      ],
+      "properties": {
+        "current": {
+          "description": "Current is the identifier of the snapshot created for this checkpoint.",
+          "type": "string"
+        },
+        "previous": {
+          "description": "Previous is the identifier of the snapshot from the previous checkpoint.",
+          "type": "string"
+        }
+      }
+    },
+    "kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSource": {
+      "description": "DataVolumeSource represents the source for our Data Volume, this can be HTTP, Imageio, S3, Registry or an existing PVC",
+      "type": "object",
+      "properties": {
+        "blank": {
+          "$ref": "#/definitions/kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeBlankImage"
+        },
+        "http": {
+          "$ref": "#/definitions/kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSourceHTTP"
+        },
+        "imageio": {
+          "$ref": "#/definitions/kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSourceImageIO"
+        },
+        "pvc": {
+          "$ref": "#/definitions/kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSourcePVC"
+        },
+        "registry": {
+          "$ref": "#/definitions/kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSourceRegistry"
+        },
+        "s3": {
+          "$ref": "#/definitions/kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSourceS3"
+        },
+        "upload": {
+          "$ref": "#/definitions/kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSourceUpload"
+        },
+        "vddk": {
+          "$ref": "#/definitions/kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSourceVDDK"
+        }
+      }
+    },
+    "kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSourceHTTP": {
+      "description": "DataVolumeSourceHTTP can be either an http or https endpoint, with an optional basic auth user name and password, and an optional configmap containing additional CAs",
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "certConfigMap": {
+          "description": "CertConfigMap is a configmap reference, containing a Certificate Authority(CA) public key, and a base64 encoded pem certificate",
+          "type": "string"
+        },
+        "secretRef": {
+          "description": "SecretRef A Secret reference, the secret should contain accessKeyId (user name) base64 encoded, and secretKey (password) also base64 encoded",
+          "type": "string"
+        },
+        "url": {
+          "description": "URL is the URL of the http(s) endpoint",
+          "type": "string"
+        }
+      }
+    },
+    "kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSourceImageIO": {
+      "description": "DataVolumeSourceImageIO provides the parameters to create a Data Volume from an imageio source",
+      "type": "object",
+      "required": [
+        "url",
+        "diskId"
+      ],
+      "properties": {
+        "certConfigMap": {
+          "description": "CertConfigMap provides a reference to the CA cert",
+          "type": "string"
+        },
+        "diskId": {
+          "description": "DiskID provides id of a disk to be imported",
+          "type": "string"
+        },
+        "secretRef": {
+          "description": "SecretRef provides the secret reference needed to access the ovirt-engine",
+          "type": "string"
+        },
+        "url": {
+          "description": "URL is the URL of the ovirt-engine",
+          "type": "string"
+        }
+      }
+    },
+    "kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSourcePVC": {
+      "description": "DataVolumeSourcePVC provides the parameters to create a Data Volume from an existing PVC",
+      "type": "object",
+      "required": [
+        "namespace",
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "description": "The name of the source PVC",
+          "type": "string"
+        },
+        "namespace": {
+          "description": "The namespace of the source PVC",
+          "type": "string"
+        }
+      }
+    },
+    "kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSourceRegistry": {
+      "description": "DataVolumeSourceRegistry provides the parameters to create a Data Volume from an registry source",
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "certConfigMap": {
+          "description": "CertConfigMap provides a reference to the Registry certs",
+          "type": "string"
+        },
+        "secretRef": {
+          "description": "SecretRef provides the secret reference needed to access the Registry source",
+          "type": "string"
+        },
+        "url": {
+          "description": "URL is the url of the Docker registry source",
+          "type": "string"
+        }
+      }
+    },
+    "kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSourceS3": {
+      "description": "DataVolumeSourceS3 provides the parameters to create a Data Volume from an S3 source",
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "certConfigMap": {
+          "description": "CertConfigMap is a configmap reference, containing a Certificate Authority(CA) public key, and a base64 encoded pem certificate",
+          "type": "string"
+        },
+        "secretRef": {
+          "description": "SecretRef provides the secret reference needed to access the S3 source",
+          "type": "string"
+        },
+        "url": {
+          "description": "URL is the url of the S3 source",
+          "type": "string"
+        }
+      }
+    },
+    "kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSourceUpload": {
+      "description": "DataVolumeSourceUpload provides the parameters to create a Data Volume by uploading the source",
+      "type": "object"
+    },
+    "kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSourceVDDK": {
+      "description": "DataVolumeSourceVDDK provides the parameters to create a Data Volume from a Vmware source",
+      "type": "object",
+      "properties": {
+        "backingFile": {
+          "description": "BackingFile is the path to the virtual hard disk to migrate from vCenter/ESXi",
+          "type": "string"
+        },
+        "secretRef": {
+          "description": "SecretRef provides a reference to a secret containing the username and password needed to access the vCenter or ESXi host",
+          "type": "string"
+        },
+        "thumbprint": {
+          "description": "Thumbprint is the certificate thumbprint of the vCenter or ESXi host",
+          "type": "string"
+        },
+        "url": {
+          "description": "URL is the URL of the vCenter or ESXi host with the VM to migrate",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "UUID is the UUID of the virtual machine that the backing file is attached to in vCenter/ESXi",
+          "type": "string"
+        }
+      }
+    },
+    "kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSpec": {
+      "description": "DataVolumeSpec defines the DataVolume type specification",
+      "type": "object",
+      "required": [
+        "source",
+        "pvc"
+      ],
+      "properties": {
+        "checkpoints": {
+          "description": "Checkpoints is a list of DataVolumeCheckpoints, representing stages in a multistage import.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeCheckpoint"
+          }
+        },
+        "contentType": {
+          "description": "DataVolumeContentType options: \"kubevirt\", \"archive\"",
+          "type": "string"
+        },
+        "finalCheckpoint": {
+          "description": "FinalCheckpoint indicates whether the current DataVolumeCheckpoint is the final checkpoint.",
+          "type": "boolean"
+        },
+        "preallocation": {
+          "description": "Preallocation controls whether storage for DataVolumes should be allocated in advance.",
+          "type": "boolean"
+        },
+        "pvc": {
+          "description": "PVC is the PVC specification",
+          "$ref": "#/definitions/k8s.io.v1.PersistentVolumeClaimSpec"
+        },
+        "source": {
+          "description": "Source is the src of the data for the requested DataVolume",
+          "$ref": "#/definitions/kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSource"
+        }
+      }
+    },
     "kubevirt.io.v1.AccessCredential": {
       "description": "AccessCredential represents a credential source that can be used to authorize remote access to the vm guest Only one of its members may be specified.",
       "type": "object",
@@ -8938,7 +8938,7 @@
         },
         "spec": {
           "description": "DataVolumeSpec contains the DataVolume specification.",
-          "$ref": "#/definitions/cdi.kubevirt.io.v1alpha1.DataVolumeSpec"
+          "$ref": "#/definitions/kubevirt.io.containerized-data-importer.pkg.apis.core.v1alpha1.DataVolumeSpec"
         },
         "status": {
           "description": "DataVolumeTemplateDummyStatus is here simply for backwards compatibility with a previous API.",
