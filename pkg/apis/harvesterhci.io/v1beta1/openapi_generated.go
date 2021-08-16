@@ -2828,11 +2828,10 @@ func schema_pkg_apis_harvesterhciio_v1beta1_VirtualMachineImageSpec(ref common.R
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
-					"url": {
+					"description": {
 						SchemaProps: spec.SchemaProps{
-							Default: "",
-							Type:    []string{"string"},
-							Format:  "",
+							Type:   []string{"string"},
+							Format: "",
 						},
 					},
 					"displayName": {
@@ -2842,20 +2841,22 @@ func schema_pkg_apis_harvesterhciio_v1beta1_VirtualMachineImageSpec(ref common.R
 							Format:  "",
 						},
 					},
-					"description": {
+					"sourceType": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
 						},
 					},
-					"secretRef": {
+					"url": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
 						},
 					},
 				},
-				Required: []string{"url", "displayName"},
+				Required: []string{"displayName", "sourceType"},
 			},
 		},
 	}
@@ -2871,6 +2872,12 @@ func schema_pkg_apis_harvesterhciio_v1beta1_VirtualMachineImageStatus(ref common
 						SchemaProps: spec.SchemaProps{
 							Type:   []string{"string"},
 							Format: "",
+						},
+					},
+					"progress": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"integer"},
+							Format: "int32",
 						},
 					},
 					"size": {
