@@ -8,14 +8,18 @@ import (
 
 var (
 	ImageInitialized condition.Cond = "Initialized"
+	ImageUploaded    condition.Cond = "Uploaded"
+)
+
+const (
+	VirtualMachineImageSourceTypeDownload = "download"
+	VirtualMachineImageSourceTypeUpload   = "upload"
 )
 
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:resource:shortName=vmimage;vmimages,scope=Namespaced
-// +kubebuilder:printcolumn:name="DISPLAY_NAME",type=string,priority=8,JSONPath=`.spec.displayName`
-// +kubebuilder:printcolumn:name="DESCRIPTION",type=string,priority=10,JSONPath=`.spec.description`
-// +kubebuilder:printcolumn:name="URL",type=string,JSONPath=`.spec.url`
+// +kubebuilder:printcolumn:name="DISPLAY-NAME",type=string,JSONPath=`.spec.displayName`
 // +kubebuilder:printcolumn:name="SIZE",type=integer,JSONPath=`.status.size`
 // +kubebuilder:printcolumn:name="AGE",type="date",JSONPath=`.metadata.creationTimestamp`
 
@@ -28,22 +32,29 @@ type VirtualMachineImage struct {
 }
 
 type VirtualMachineImageSpec struct {
-	// +kubebuilder:validation:Required
-	URL string `json:"url"`
-
-	// +kubebuilder:validation:Required
-	DisplayName string `json:"displayName"`
+	// +optional
+	Checksum string `json:"checksum,omitempty"`
 
 	// +optional
 	Description string `json:"description,omitempty"`
 
+	// +kubebuilder:validation:Required
+	DisplayName string `json:"displayName"`
+
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:Enum=download;upload
+	SourceType string `json:"sourceType,omitempty"`
+
 	// +optional
-	SecretRef string `json:"secretRef,omitempty"`
+	URL string `json:"url"`
 }
 
 type VirtualMachineImageStatus struct {
 	// +optional
 	AppliedURL string `json:"appliedUrl,omitempty"`
+
+	// +optional
+	Progress int `json:"progress,omitempty"`
 
 	// +optional
 	Size int64 `json:"size,omitempty"`

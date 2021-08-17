@@ -8,4 +8,5 @@ const (
 	AnnotationMigrationState       = prefix + "/migrationState"
 	AnnotationTimestamp            = prefix + "/timestamp"
 	AnnotationVolumeClaimTemplates = prefix + "/volumeClaimTemplates"
+	AnnotationImageID              = prefix + "/imageId"
 )

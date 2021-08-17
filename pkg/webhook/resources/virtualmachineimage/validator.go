@@ -61,6 +61,12 @@ func (v *virtualMachineImageValidator) Create(request *types.Request, newObj run
 		}
 	}
 
+	if newImage.Spec.SourceType == v1beta1.VirtualMachineImageSourceTypeDownload && newImage.Spec.URL == "" {
+		return werror.NewInvalidError(`url is required when image source type is "download"`, "spec.url")
+	} else if newImage.Spec.SourceType == v1beta1.VirtualMachineImageSourceTypeUpload && newImage.Spec.URL != "" {
+		return werror.NewInvalidError(`url should be empty when image source type is "upload"`, "spec.url")
+	}
+
 	return nil
 }
 
