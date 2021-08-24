@@ -18,6 +18,8 @@ import (
 
 	apisv1beta1 "github.com/harvester/harvester/pkg/apis/harvesterhci.io/v1beta1"
 	"github.com/harvester/harvester/pkg/generated/controllers/harvesterhci.io/v1beta1"
+	lhv1beta1 "github.com/harvester/harvester/pkg/generated/controllers/longhorn.io/v1beta1"
+	lhtypes "github.com/longhorn/longhorn-manager/types"
 )
 
 const (
@@ -32,9 +34,11 @@ func Formatter(request *types.APIRequest, resource *types.RawResource) {
 }
 
 type UploadActionHandler struct {
-	httpClient http.Client
-	Images     v1beta1.VirtualMachineImageClient
-	ImageCache v1beta1.VirtualMachineImageCache
+	httpClient                  http.Client
+	Images                      v1beta1.VirtualMachineImageClient
+	ImageCache                  v1beta1.VirtualMachineImageCache
+	BackingImageDataSources     lhv1beta1.BackingImageDataSourceClient
+	BackingImageDataSourceCache lhv1beta1.BackingImageDataSourceCache
 }
 
 func (h UploadActionHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
@@ -75,6 +79,7 @@ func (h UploadActionHandler) uploadImage(rw http.ResponseWriter, req *http.Reque
 	}
 
 	defer func() {
+		logrus.Infof("debug, finish upload, err is %v", err)
 		if err != nil {
 			if updateErr := h.updateUploadedConditionOnConflict(image, "False", "UploadFailed", err.Error()); updateErr != nil {
 				logrus.Error(err)
@@ -82,8 +87,14 @@ func (h UploadActionHandler) uploadImage(rw http.ResponseWriter, req *http.Reque
 		}
 	}()
 
+	//Wait for backing image data source to be ready. Otherwise the upload request will fail.
+	dsName := fmt.Sprintf("%s-%s", namespace, name)
+	if err := h.waitForBackingImageDataSourceReady(dsName); err != nil {
+		return err
+	}
+
 	url := fmt.Sprintf("http://longhorn-backend.longhorn-system:9500/v1/backingimages/%s-%s", namespace, name)
-	uploadReq, err := http.NewRequest(http.MethodPost, url, req.Body)
+	uploadReq, err := http.NewRequestWithContext(req.Context(), http.MethodPost, url, req.Body)
 	if err != nil {
 		return fmt.Errorf("failed to create the upload request: %w", err)
 	}
@@ -96,13 +107,38 @@ func (h UploadActionHandler) uploadImage(rw http.ResponseWriter, req *http.Reque
 	}
 	defer uploadResp.Body.Close()
 
-	rw.WriteHeader(uploadResp.StatusCode)
 	body, err := ioutil.ReadAll(uploadResp.Body)
 	if err != nil {
 		return fmt.Errorf("failed to read response body: %w", err)
 	}
-	_, err = rw.Write(body)
-	return err
+	if uploadResp.StatusCode >= http.StatusBadRequest {
+		return fmt.Errorf("upload failed: %s", string(body))
+	}
+
+	return nil
+}
+
+func (h UploadActionHandler) waitForBackingImageDataSourceReady(name string) error {
+	logrus.Infoln("waitForBackingImageDataSourceReady, " + name)
+	retry := 30
+	for i := 0; i < retry; i++ {
+		ds, err := h.BackingImageDataSources.Get("longhorn-system", name, metav1.GetOptions{})
+		logrus.Info(err)
+		if err != nil && !apierrors.IsNotFound(err) {
+			return fmt.Errorf("failed waiting for backing image data source to be ready: %w", err)
+		}
+		if err == nil {
+			logrus.Infoln("state is " + ds.Status.CurrentState)
+			if ds.Status.CurrentState == lhtypes.BackingImageStateStarting {
+				return nil
+			}
+			if ds.Status.CurrentState == lhtypes.BackingImageStateFailed {
+				return errors.New(ds.Status.Message)
+			}
+		}
+		time.Sleep(2 * time.Second)
+	}
+	return errors.New("timeout waiting for backing image data source to be ready")
 }
 
 func (h UploadActionHandler) updateUploadedConditionOnConflict(image *apisv1beta1.VirtualMachineImage,

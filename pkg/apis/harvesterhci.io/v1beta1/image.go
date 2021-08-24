@@ -33,9 +33,6 @@ type VirtualMachineImage struct {
 
 type VirtualMachineImageSpec struct {
 	// +optional
-	Checksum string `json:"checksum,omitempty"`
-
-	// +optional
 	Description string `json:"description,omitempty"`
 
 	// +kubebuilder:validation:Required
@@ -43,7 +40,7 @@ type VirtualMachineImageSpec struct {
 
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:Enum=download;upload
-	SourceType string `json:"sourceType,omitempty"`
+	SourceType string `json:"sourceType"`
 
 	// +optional
 	URL string `json:"url"`

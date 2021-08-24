@@ -2,7 +2,6 @@ package image
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/rancher/apiserver/pkg/types"
 	"github.com/rancher/steve/pkg/schema"
@@ -22,11 +21,11 @@ func RegisterSchema(scaled *config.Scaled, server *server.Server, options config
 			}
 			s.ActionHandlers = map[string]http.Handler{
 				actionUpload: UploadActionHandler{
-					httpClient: http.Client{
-						Timeout: 30 * time.Second,
-					},
-					Images:     scaled.HarvesterFactory.Harvesterhci().V1beta1().VirtualMachineImage(),
-					ImageCache: scaled.HarvesterFactory.Harvesterhci().V1beta1().VirtualMachineImage().Cache(),
+					httpClient:                  http.Client{},
+					Images:                      scaled.HarvesterFactory.Harvesterhci().V1beta1().VirtualMachineImage(),
+					ImageCache:                  scaled.HarvesterFactory.Harvesterhci().V1beta1().VirtualMachineImage().Cache(),
+					BackingImageDataSources:     scaled.LonghornFactory.Longhorn().V1beta1().BackingImageDataSource(),
+					BackingImageDataSourceCache: scaled.LonghornFactory.Longhorn().V1beta1().BackingImageDataSource().Cache(),
 				},
 			}
 		},

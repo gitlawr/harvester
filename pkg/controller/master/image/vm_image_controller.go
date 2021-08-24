@@ -114,12 +114,11 @@ func (h *vmImageHandler) createBackingImage(image *harvesterv1.VirtualMachineIma
 			},
 		},
 		Spec: types.BackingImageSpec{
-			Checksum:         image.Spec.Checksum,
 			SourceType:       types.BackingImageDataSourceType(image.Spec.SourceType),
 			SourceParameters: map[string]string{},
 		},
 	}
-	if image.Spec.SourceType == harvesterv1.VirtualMachineImageSourceTypeUpload {
+	if image.Spec.SourceType == harvesterv1.VirtualMachineImageSourceTypeDownload {
 		bi.Spec.SourceParameters[types.DataSourceTypeDownloadParameterURL] = image.Spec.URL
 	}
 

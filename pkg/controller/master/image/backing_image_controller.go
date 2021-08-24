@@ -5,6 +5,7 @@ import (
 
 	"github.com/longhorn/longhorn-manager/k8s/pkg/apis/longhorn/v1beta1"
 	"github.com/longhorn/longhorn-manager/types"
+	"k8s.io/apimachinery/pkg/api/errors"
 
 	v1beta12 "github.com/harvester/harvester/pkg/apis/harvesterhci.io/v1beta1"
 	harvesterv1beta1 "github.com/harvester/harvester/pkg/generated/controllers/harvesterhci.io/v1beta1"
@@ -22,12 +23,17 @@ type backingImageHandler struct {
 }
 
 func (h *backingImageHandler) OnChanged(_ string, backingImage *v1beta1.BackingImage) (*v1beta1.BackingImage, error) {
+	if backingImage == nil || backingImage.DeletionTimestamp != nil {
+		return nil, nil
+	}
 	if backingImage.Spec.SourceType != types.BackingImageDataSourceTypeUpload || backingImage.Annotations[util.AnnotationImageID] == "" {
 		return nil, nil
 	}
 	namespace, name := ref.Parse(backingImage.Annotations[util.AnnotationImageID])
 	vmImage, err := h.vmImageCache.Get(namespace, name)
-	if err != nil {
+	if errors.IsNotFound(err) {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 	if !v1beta12.ImageUploaded.IsUnknown(vmImage) {
