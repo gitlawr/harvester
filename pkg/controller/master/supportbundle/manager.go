@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/harvester/harvester/pkg/util"
+
 	ctlappsv1 "github.com/rancher/wrangler/pkg/generated/controllers/apps/v1"
 	ctlcorev1 "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
 	"github.com/sirupsen/logrus"
@@ -43,7 +45,7 @@ func (m *Manager) Create(sb *harvesterv1.SupportBundle, image string) error {
 	logrus.Debugf("creating deployment %s with image %s", deployName, image)
 
 	pullPolicy := m.getImagePullPolicy()
-	namespaces := []string{sb.Namespace, "longhorn-system"}
+	namespaces := []string{sb.Namespace, util.LonghornSystemNamespaceName}
 
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{

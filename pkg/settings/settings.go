@@ -15,6 +15,7 @@ var (
 	provider       Provider
 	InjectDefaults string
 
+	AdditionalCA                 = NewSetting("additional-ca", "")
 	APIUIVersion                 = NewSetting("api-ui-version", "1.1.9") // Please update the HARVESTER_API_UI_VERSION in package/Dockerfile when updating the version here.
 	ServerVersion                = NewSetting("server-version", "dev")
 	UIIndex                      = NewSetting("ui-index", DefaultDashboardUIURL)
@@ -29,6 +30,7 @@ var (
 	SupportBundleImage           = NewSetting("support-bundle-image", "rancher/support-bundle-kit:v0.0.3")
 	SupportBundleImagePullPolicy = NewSetting("support-bundle-image-pull-policy", "IfNotPresent")
 	DefaultStorageClass          = NewSetting("default-storage-class", "longhorn")
+	HTTPProxy                    = NewSetting("http-proxy", "{}")
 )
 
 const (
