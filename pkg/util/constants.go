@@ -9,6 +9,9 @@ const (
 	AnnotationTimestamp            = prefix + "/timestamp"
 	AnnotationVolumeClaimTemplates = prefix + "/volumeClaimTemplates"
 	AnnotationImageID              = prefix + "/imageId"
+	AnnotationHash                 = prefix + "/hash"
 
+	BackupTargetSecretName      = "harvester-backup-target-secret"
+	CattleSystemNamespaceName   = "cattle-system"
 	LonghornSystemNamespaceName = "longhorn-system"
 )
