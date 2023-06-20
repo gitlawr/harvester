@@ -17,6 +17,8 @@ import (
 	"k8s.io/client-go/util/workqueue"
 )
 
+const maxTimeout2min = 2 * time.Minute
+
 type Handler interface {
 	OnChange(key string, obj runtime.Object) error
 }
@@ -86,7 +88,10 @@ func applyDefaultOptions(opts *Options) *Options {
 		newOpts = *opts
 	}
 	if newOpts.RateLimiter == nil {
-		newOpts.RateLimiter = workqueue.DefaultControllerRateLimiter()
+		newOpts.RateLimiter = workqueue.NewMaxOfRateLimiter(
+			workqueue.NewItemFastSlowRateLimiter(time.Millisecond, maxTimeout2min, 30),
+			workqueue.NewItemExponentialFailureRateLimiter(5*time.Millisecond, 30*time.Second),
+		)
 	}
 	return &newOpts
 }
@@ -119,7 +124,6 @@ func (c *controller) run(workers int, stopCh <-chan struct{}) {
 	defer utilruntime.HandleCrash()
 	defer func() {
 		c.workqueue.ShutDown()
-		c.workqueue = nil
 	}()
 
 	// Start the informer factories to begin populating the informer caches
@@ -218,7 +222,7 @@ func (c *controller) EnqueueKey(key string) {
 	if c.workqueue == nil {
 		c.startKeys = append(c.startKeys, startKey{key: key})
 	} else {
-		c.workqueue.AddRateLimited(key)
+		c.workqueue.Add(key)
 	}
 }
 
@@ -278,11 +282,12 @@ func (c *controller) handleObject(obj interface{}) {
 			log.Errorf("error decoding object, invalid type")
 			return
 		}
-		_, ok = tombstone.Obj.(metav1.Object)
+		newObj, ok := tombstone.Obj.(metav1.Object)
 		if !ok {
 			log.Errorf("error decoding object tombstone, invalid type")
 			return
 		}
+		obj = newObj
 	}
 	c.enqueue(obj)
 }

@@ -20,7 +20,9 @@ import (
 var (
 	cleanPrefix = []string{
 		"kubectl.kubernetes.io/",
-		"objectset.rio.cattle.io/",
+	}
+	cleanContains = []string{
+		"cattle.io/",
 	}
 )
 
@@ -114,7 +116,7 @@ func CleanObjectForExport(obj runtime.Object) (runtime.Object, error) {
 		if gvk, err := gvk.Get(obj); err == nil {
 			obj.GetObjectKind().SetGroupVersionKind(gvk)
 		} else if err != nil {
-			return nil, fmt.Errorf("kind and/or apiVersion is not set on input object: %v", obj)
+			return nil, errors.Wrapf(err, "kind and/or apiVersion is not set on input object: %v", obj)
 		}
 	}
 
@@ -169,6 +171,26 @@ func CleanObjectForExport(obj runtime.Object) (runtime.Object, error) {
 	delete(data, "status")
 
 	return unstr, nil
+}
+
+func CleanAnnotationsForExport(annotations map[string]string) map[string]string {
+	result := make(map[string]string, len(annotations))
+
+outer:
+	for k := range annotations {
+		for _, prefix := range cleanPrefix {
+			if strings.HasPrefix(k, prefix) {
+				continue outer
+			}
+		}
+		for _, contains := range cleanContains {
+			if strings.Contains(k, contains) {
+				continue outer
+			}
+		}
+		result[k] = annotations[k]
+	}
+	return result
 }
 
 func cleanMap(annoLabels map[string]string) {
