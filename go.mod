@@ -17,7 +17,7 @@ require (
 	github.com/rancher/lasso v0.0.0-20200515155337-a34e1e26ad91
 	github.com/rancher/steve v0.0.0-20200622175150-3dbc369174fb
 	github.com/rancher/wrangler v0.6.2-0.20200515155908-1923f3f8ec3f
-	github.com/rancher/wrangler-api v0.6.1-0.20200515193802-dcf70881b087
+	github.com/rancher/wrangler-api v0.6.1-0.20210324162328-87b7e7a3680e
 	github.com/sirupsen/logrus v1.4.2
 	github.com/urfave/cli v1.22.2
 	k8s.io/apimachinery v0.18.0
