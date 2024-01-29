@@ -693,6 +693,8 @@ github.com/rancher/wrangler v0.6.2-0.20200515155908-1923f3f8ec3f/go.mod h1:Nmtml
 github.com/rancher/wrangler-api v0.2.0/go.mod h1:zTPdNLZO07KvRaVOx6XQbKBSV55Fnn4s7nqmrMPJqd8=
 github.com/rancher/wrangler-api v0.6.1-0.20200515193802-dcf70881b087 h1:+hiZFORh4fMvRSg5SIClz4y6nD5wkKLAdtPzjxyeHgs=
 github.com/rancher/wrangler-api v0.6.1-0.20200515193802-dcf70881b087/go.mod h1:s95VCVHV19b+EUo7BAwwe6nhaDx2/lHu91hxxDHbZs0=
+github.com/rancher/wrangler-api v0.6.1-0.20210324162328-87b7e7a3680e h1:CFh2OtymCx9k6SaihWLTXOev5RriHiqTDcY5b5Wsf4U=
+github.com/rancher/wrangler-api v0.6.1-0.20210324162328-87b7e7a3680e/go.mod h1:s95VCVHV19b+EUo7BAwwe6nhaDx2/lHu91hxxDHbZs0=
 github.com/rancheredge/apiserver v0.0.0-20200708064345-bd2aa8f9b7d1 h1:mgB8yE7URh4oRhd/R65LWSjtLhJgWOS4NZ9CZeAF+58=
 github.com/rancheredge/apiserver v0.0.0-20200708064345-bd2aa8f9b7d1/go.mod h1:8W0EwaR9dH5NDFw6mpAX437D0q+EZqKWbZyX71+z2WI=
 github.com/rancheredge/steve v0.0.0-20200708031911-f69e0f4820b4 h1:p0cAqPQmSbvKOCh1KFptDH32iwj0ZTdKTvT/YLiK558=
