@@ -19,7 +19,7 @@ require (
 	github.com/rancher/wrangler v0.6.2-0.20200515155908-1923f3f8ec3f
 	github.com/rancher/wrangler-api v0.6.1-0.20200515193802-dcf70881b087
 	github.com/sirupsen/logrus v1.4.2
-	github.com/urfave/cli v1.22.2
+	github.com/urfave/cli v1.22.17
 	k8s.io/apimachinery v0.18.0
 	k8s.io/client-go v12.0.0+incompatible
 	kubevirt.io/client-go v0.31.1-0.20200715061104-844cb60487e4
