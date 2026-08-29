@@ -6,7 +6,7 @@ replace (
 	github.com/crewjam/saml => github.com/rancher/saml v0.0.0-20180713225824-ce1532152fde
 	github.com/rancher/apiserver => github.com/rancheredge/apiserver v0.0.0-20200708064345-bd2aa8f9b7d1
 	github.com/rancher/steve => github.com/rancheredge/steve v0.0.0-20200708031911-f69e0f4820b4
-	k8s.io/client-go => k8s.io/client-go v0.18.0
+	k8s.io/client-go => k8s.io/client-go v0.37.0
 	kubevirt.io/client-go => github.com/orangedeng/client-go v0.31.1-0.20200715061104-844cb60487e4
 )
 
@@ -20,7 +20,7 @@ require (
 	github.com/rancher/wrangler-api v0.6.1-0.20200515193802-dcf70881b087
 	github.com/sirupsen/logrus v1.4.2
 	github.com/urfave/cli v1.22.2
-	k8s.io/apimachinery v0.18.0
+	k8s.io/apimachinery v0.37.0
 	k8s.io/client-go v12.0.0+incompatible
 	kubevirt.io/client-go v0.31.1-0.20200715061104-844cb60487e4
 )
