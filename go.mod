@@ -12,7 +12,7 @@ replace (
 
 require (
 	github.com/gorilla/mux v1.7.3
-	github.com/rancher/apiserver v0.0.0-20200622174841-b4d1106a9883
+	github.com/rancher/apiserver v0.10.1
 	github.com/rancher/dynamiclistener v0.2.1-0.20200213165308-111c5b43e932
 	github.com/rancher/lasso v0.0.0-20200515155337-a34e1e26ad91
 	github.com/rancher/steve v0.0.0-20200622175150-3dbc369174fb
